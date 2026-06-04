@@ -5,24 +5,17 @@ import React, { useState, useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ActivityIndicator } from "react-native";
 import { BarChart3, Lightbulb, Package, User } from "lucide-react-native";
-import { AddToFridgeModal } from "../screens/AddToFridgeModal";
-import { RecipeModal } from "../screens/RecipeModal";
-import { FindRecipeScreen } from "../screens/FindRecipeScreen";
-import { LandingScreen } from "../screens/LandingScreen";
-import { MainMenuScreen } from "../screens/MainMenuScreen";
-import { SavedRecipesScreen } from "../screens/SavedRecipesScreen";
-import { YourFridgeScreen } from "../screens/YourFridgeScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { DashboardScreen } from "../screens/DashboardScreen";
 import { MenuSuggestionsScreen } from "../screens/MenuSuggestionsScreen";
 import { InventoryScreen } from "../screens/InventoryScreen";
 import { AccountScreen } from "../screens/AccountScreen";
-import { RecipeCreationScreen } from "../screens/RecipeCreationScreen";
+import { WasteLoggingScreen } from "../screens/WasteLoggingScreen";
 import { RootStackParamList } from "./types";
 import { COLORS } from "../theme";
 import { apiClient } from "../api/client";
-import { HeaderContext } from "./HeaderContext";
+import { HeaderContext } from "./HeaderContextProvider";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -134,46 +127,20 @@ export function RootNavigator() {
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={{ headerShown: false }}
-            initialRouteName={isAuthenticated ? "MainMenu" : "Login"}
+            initialRouteName={isAuthenticated ? "YourFridge" : "Login"}
           >
             {/* Auth Screens - Always available */}
             <Stack.Screen
               name="Login"
-              options={{ animationEnabled: false }}
+              options={{ headerShown: false }}
             >
               {(props) => <LoginScreen {...props} onLoginSuccess={handleLogin} />}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
 
-            {/* App Screens - Always available */}
-            <Stack.Screen name="MainMenu" component={MainMenuScreen} />
+            {/* B2B App Screens - When authenticated */}
             <Stack.Screen name="YourFridge" component={TabsNavigator} />
-            <Stack.Screen
-              name="AddToFridge"
-              component={AddToFridgeModal}
-              options={{
-                presentation: "transparentModal",
-                contentStyle: { backgroundColor: "transparent" },
-                gestureEnabled: false,
-              }}
-            />
-            <Stack.Screen
-              name="RecipeDetails"
-              component={RecipeModal}
-              options={{
-                presentation: "transparentModal",
-                contentStyle: { backgroundColor: "transparent" },
-                gestureEnabled: false,
-              }}
-            />
-            <Stack.Screen
-              name="CreateRecipe"
-              component={RecipeCreationScreen}
-              options={{
-                presentation: "modal",
-                headerShown: false,
-              }}
-            />
+            <Stack.Screen name="WasteLogging" component={WasteLoggingScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </HeaderContext.Provider>

@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import * as path from 'path';
 
 export const AppDataSource = new DataSource({
-  type: 'sqlite',
-  database: path.join(__dirname, '..', 'refridge.db'),
+  type: 'postgres',
+  host: process.env.DATABASE_HOST || 'localhost',
+  port: parseInt(process.env.DATABASE_PORT || '5432'),
+  username: process.env.DATABASE_USER || 'refridge_user',
+  password: process.env.DATABASE_PASSWORD || 'SecurePass123!',
+  database: process.env.DATABASE_NAME || 'refridge_dev',
   synchronize: true,
   logging: process.env.NODE_ENV === 'development',
   entities: [__dirname + '/models/**/*.ts'],
@@ -15,7 +18,8 @@ export const AppDataSource = new DataSource({
 export const initializeDatabase = async () => {
   try {
     await AppDataSource.initialize();
-    console.log('✅ Database connected successfully');
+    console.log('✅ PostgreSQL Database connected successfully');
+    console.log(`📊 Database: ${process.env.DATABASE_NAME} @ ${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}`);
     return AppDataSource;
   } catch (error) {
     console.error('❌ Database connection failed:', error);

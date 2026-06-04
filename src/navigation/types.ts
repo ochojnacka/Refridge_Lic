@@ -1,9 +1,19 @@
 export type RootStackParamList = {
-  Landing: undefined;
-  MainMenu: { transition?: "forward" | "back" } | undefined;
+  // Auth screens
+  Login: undefined;
+  Register: undefined;
+  
+  // B2B App screens
   YourFridge: { transition?: "forward" | "back" } | undefined;
-  FindRecipe: { transition?: "forward" | "back" } | undefined;
-  SavedRecipes: { transition?: "forward" | "back" } | undefined;
-  AddToFridge: undefined;
-  RecipeDetails: { recipeId: string; transition?: "forward" | "back" };
+  
+  // Tab screens (nested in YourFridge)
+  Dashboard: undefined;
+  Suggestions: undefined;
+  Inventory: undefined;
+  Account: undefined;
+  
+  // Future screens (placeholder for new features)
+  WasteLogging: undefined;
+  DetailedKPI: undefined;
+  Alerts: undefined;
 };

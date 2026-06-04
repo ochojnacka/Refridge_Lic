@@ -119,19 +119,33 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
               <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>📦 Inventory</Text>
               <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{items.length} items tracked</Text>
             </View>
-            <TouchableOpacity
-              onPress={() => setModalVisible(true)}
-              style={{
-                backgroundColor: '#2ecc71',
-                padding: 12,
-                borderRadius: 8,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <Plus size={20} color="white" />
-              <Text style={{ color: 'white', marginLeft: 6, fontWeight: '600' }}>Add</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('WasteLogging')}
+                style={{
+                  backgroundColor: '#e67e22',
+                  padding: 12,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>🗑️ Log Waste</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setModalVisible(true)}
+                style={{
+                  backgroundColor: '#2ecc71',
+                  padding: 12,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Plus size={20} color="white" />
+                <Text style={{ color: 'white', marginLeft: 6, fontWeight: '600' }}>Add</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {error && (
