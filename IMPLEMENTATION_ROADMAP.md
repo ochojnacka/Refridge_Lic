@@ -158,7 +158,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
       {/* Button: View waste history */}
     </SafeAreaView>
   );
-}
+}`
 ```
 
 - [ ] Create form state (selectedItem, quantity, reason, loading)

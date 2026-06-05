@@ -3,6 +3,7 @@ import { AppDataSource } from '../database';
 import { AuthRequest, authenticateToken } from '../middleware/auth';
 import { WasteLog } from '../models/WasteLog';
 import { InventoryItem } from '../models/InventoryItem';
+import { io } from '../server'; // Bezpośredni import instancji io
 
 const router = Router();
 const wasteLogRepository = AppDataSource.getRepository(WasteLog);
@@ -15,13 +16,13 @@ router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) =
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { itemId, quantity, reason } = req.body;
+    const { itemId, quantity, reason, unit } = req.body;
 
     if (!itemId || quantity === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Get inventory item to calculate waste value
+    // Pobierz produkt z inwentarza, aby obliczyć wartość straty
     const item = await inventoryRepository.findOne({
       where: { id: itemId, restaurantId: req.user.restaurantId },
     });
@@ -30,24 +31,32 @@ router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) =
       return res.status(404).json({ error: 'Inventory item not found' });
     }
 
-    // Calculate waste value
+    // Oblicz wartość straty w PLN
     const value = quantity * item.costPrice;
 
-    // Create waste log
+    // Utwórz wpis o stracie
     const wasteLog = wasteLogRepository.create({
       restaurantId: req.user.restaurantId,
       itemId,
       quantity,
       reason,
       value,
-      unit: item.unit,
+      unit: unit || item.unit, // Używa jednostki z żądania lub domyślnej z produktu
     });
 
     await wasteLogRepository.save(wasteLog);
 
-    // Optionally reduce inventory quantity (commented out for now)
+    // Opcjonalnie: Zaktualizuj stan magazynowy
     // item.quantity -= quantity;
     // await inventoryRepository.save(item);
+
+    // --- INTEGRACJA WEBSOCKET ---
+    if (io) {
+      // Emituje zdarzenie o zalogowaniu straty. 
+      // W przyszłości (DEN 4) można ograniczyć emisję do konkretnej restauracji:
+      // io.to(`restaurant-${req.user.restaurantId}`).emit('waste:logged', wasteLog);
+      io.emit('waste:logged', wasteLog); 
+    }
 
     res.status(201).json(wasteLog);
   } catch (error) {

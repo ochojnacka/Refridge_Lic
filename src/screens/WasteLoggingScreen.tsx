@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CheckCircle, AlertCircle, ChevronDown } from 'lucide-react-native';
+import { CheckCircle, AlertCircle, ChevronDown, Bell } from 'lucide-react-native';
+import { io, Socket } from 'socket.io-client';
 import { apiClient } from '../api/client';
 import { COLORS, RADIUS, SHADOW } from '../theme';
 import { formatPrice, formatQty } from '../utils/formatting';
@@ -33,6 +34,11 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
   const [reason, setReason] = useState('Expired');
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [showReasonPicker, setShowReasonPicker] = useState(false);
+
+  // WebSocket state
+  const socketRef = useRef<Socket | null>(null);
+  const [lastWasteTime, setLastWasteTime] = useState<number | null>(null);
+  const [badgeText, setBadgeText] = useState<string | null>(null);
 
   const WASTE_REASONS = ['Expired', 'Damaged', 'Over-production', 'Other'];
 
@@ -63,7 +69,41 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
 
   useEffect(() => {
     loadInventory();
+
+    // Setup WebSocket connection
+    socketRef.current = io('http://192.168.1.188:3000'); // Adres z apiClient
+
+    socketRef.current.on('waste:logged', (data) => {
+      setLastWasteTime(Date.now());
+      loadInventory(); // Odśwież listę w tle
+    });
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
+
+  // Timer for real-time badge
+  useEffect(() => {
+    if (!lastWasteTime) {
+      setBadgeText(null);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const secondsAgo = Math.floor((Date.now() - lastWasteTime) / 1000);
+      if (secondsAgo <= 60) {
+        setBadgeText(`New waste logged ${secondsAgo}s ago`);
+      } else {
+        setBadgeText(null);
+        setLastWasteTime(null);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastWasteTime]);
 
   const calculateWasteValue = (): number => {
     if (!selectedItem || !quantity) return 0;
@@ -132,6 +172,29 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
             Track ingredients and products
           </Text>
         </View>
+
+        {/* Real-time Notification Badge */}
+        {badgeText && (
+          <View
+            style={{
+              marginHorizontal: 16,
+              marginTop: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 12,
+              backgroundColor: '#CCE5FF',
+              borderRadius: RADIUS.md,
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#B8DAFF',
+            }}
+          >
+            <Bell size={20} color="#004085" />
+            <Text style={{ marginLeft: 8, color: '#004085', fontWeight: '600', flex: 1 }}>
+              {badgeText}
+            </Text>
+          </View>
+        )}
 
         {/* Success Message */}
         {success && (
