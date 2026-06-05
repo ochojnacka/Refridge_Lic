@@ -15,7 +15,5 @@ export type RootStackParamList = {
   // --- Feature Screens (Pushed on top of Tabs) ---
   WasteLogging: undefined;
   DetailedKPI: undefined;
-  
-  // --- Upcoming Features (DEN 4 Roadmap) ---
   Alerts: undefined;
 };

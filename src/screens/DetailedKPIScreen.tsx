@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-  RefreshControl,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { TrendingUp, PieChart, Package, DollarSign, AlertTriangle } from 'lucide-react-native';
 import { apiClient } from '../api/client';
 import { AppHeader } from '../components/AppHeader';

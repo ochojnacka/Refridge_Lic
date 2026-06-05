@@ -92,16 +92,50 @@ export function AlertsScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  scrollContainer: { flex: 1 },
-  content: { padding: 20 },
-  actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#212529' },
-  clearButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  clearText: { fontSize: 13, fontWeight: '700', color: '#fa5252' },
-  emptyState: { alignItems: 'center', marginTop: 100, gap: 12 },
-  emptyStateText: { fontSize: 15, color: '#adb5bd', fontWeight: '500' },
-  list: { gap: 12 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#f8f9fa' 
+  },
+  scrollContainer: { 
+    flex: 1 
+  },
+  content: { 
+    padding: 20 
+  },
+  actionRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: 20 
+  },
+  sectionTitle: { 
+    fontSize: 18, 
+    fontWeight: '800', 
+    color: '#212529' 
+  },
+  clearButton: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 4 
+  },
+  clearText: { 
+    fontSize: 13, 
+    fontWeight: '700', 
+    color: '#fa5252' 
+  },
+  emptyState: { 
+    alignItems: 'center', 
+    marginTop: 100, 
+    gap: 12 
+  },
+  emptyStateText: { 
+    fontSize: 15, 
+    color: '#adb5bd', 
+    fontWeight: '500' 
+  },
+  list: { 
+    gap: 12 
+  },
   alertCard: { 
     flexDirection: 'row', 
     backgroundColor: '#ffffff', 
@@ -110,12 +144,37 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 
   },
-  alertWarning: { borderLeftColor: '#f08c00' },
-  alertInfo: { borderLeftColor: '#339af0' },
-  alertSuccess: { borderLeftColor: '#51cf66' },
-  iconBox: { marginRight: 12, paddingTop: 2 },
-  alertContent: { flex: 1 },
-  alertTitle: { fontSize: 15, fontWeight: '700', color: '#212529', marginBottom: 4 },
-  alertMessage: { fontSize: 14, color: '#495057', marginBottom: 4, lineHeight: 20 },
-  alertTime: { fontSize: 12, color: '#868e96', fontWeight: '500' },
+  alertWarning: { 
+    borderLeftColor: '#f08c00' 
+  },
+  alertInfo: { 
+    borderLeftColor: '#339af0' 
+  },
+  alertSuccess: { 
+    borderLeftColor: '#51cf66' 
+  },
+  iconBox: { 
+    marginRight: 12, 
+    paddingTop: 2 
+  },
+  alertContent: { 
+    flex: 1 
+  },
+  alertTitle: { 
+    fontSize: 15, 
+    fontWeight: '700', 
+    color: '#212529', 
+    marginBottom: 4 
+  },
+  alertMessage: { 
+    fontSize: 14, 
+    color: '#495057', 
+    marginBottom: 4, 
+    lineHeight: 20 
+  },
+  alertTime: { 
+    fontSize: 12, 
+    color: '#868e96', 
+    fontWeight: '500' 
+  },
 });

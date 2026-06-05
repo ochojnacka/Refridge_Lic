@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, Animated, Platform } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrendingUp, AlertTriangle, Package } from 'lucide-react-native';
 import { apiClient } from '../api/client';

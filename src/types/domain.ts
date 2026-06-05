@@ -1,5 +1,3 @@
-// src/types/domain.ts
-
 // 1. Zaktualizowane jednostki miary (zgodnie z InventoryScreen)
 export type Unit = "kg" | "g" | "l" | "ml" | "pcs" | "box" | "bundle";
 
@@ -9,7 +7,7 @@ export type Category = "VEGETABLES" | "MEAT" | "DAIRY" | "SPICES" | "PANTRY" | "
 export const UNITS: Unit[] = ["kg", "g", "l", "ml", "pcs", "box", "bundle"];
 export const CATEGORIES: Category[] = ["VEGETABLES", "MEAT", "DAIRY", "SPICES", "PANTRY", "FROZEN", "BEVERAGES", "OTHER"];
 
-// 3. Pozycja Magazynowa (zastępuje dawny Ingredient)
+// 3. Pozycja Magazynowa
 export interface InventoryItem {
   id: string;
   name: string;
@@ -19,7 +17,7 @@ export interface InventoryItem {
   category: Category;
 }
 
-// 4. Typy dla nowego WasteLoggingScreen (z Twojego planu DEN 2-3)
+// 4. Typy dla WasteLoggingScreen 
 export type WasteReason = 'Expired' | 'Damaged' | 'Over-production' | 'Other';
 
 export interface WasteLog {

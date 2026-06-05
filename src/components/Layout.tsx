@@ -1,4 +1,3 @@
-// src/components/Layout.tsx
 import React from "react";
 import { ScrollView, StyleSheet, View, RefreshControl } from "react-native";
 import { COLORS, SPACING } from "../theme";
@@ -10,7 +9,7 @@ interface ScreenContainerProps {
   footer?: React.ReactNode;
   footerBottomInset?: number;
   scrollBottomInset?: number;
-  refreshControl?: React.ReactElement; // Dodane wsparcie dla Pull-to-refresh
+  refreshControl?: React.ReactElement;
   onScrollCallback?: (y: number) => void;
   scrollViewRef?: React.RefObject<ScrollView | null>;
 }
@@ -21,7 +20,7 @@ export function ScreenContainer({
   header,
   footer,
   footerBottomInset = 0,
-  scrollBottomInset = 40, // Zmniejszony domyślny margines dolny (brak wielkich pływających przycisków B2C)
+  scrollBottomInset = 40,
   refreshControl,
   onScrollCallback,
   scrollViewRef,
@@ -58,7 +57,7 @@ export function ScreenContainer({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background, // Czyste tło pod czytelne wykresy i tabele
+    backgroundColor: COLORS.background,
   },
   contentArea: {
     flex: 1,
@@ -69,7 +68,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: SPACING.md, // Zmniejszono z lg na md: więcej miejsca na dane analityczne
+    paddingHorizontal: SPACING.md,
     paddingTop: SPACING.sm,
   },
   content: {

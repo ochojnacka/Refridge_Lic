@@ -1,17 +1,17 @@
 import React from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native"; // Dodane
-import { NativeStackNavigationProp } from "@react-navigation/native-stack"; // Dodane
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ArrowLeft, Bell } from "lucide-react-native";
 import { COLORS } from "../theme";
-import { RootStackParamList } from "../navigation/types"; // Dodane
+import { RootStackParamList } from "../navigation/types";
 
 interface AppHeaderProps {
   title?: string;
   onBack?: () => void;
   showNotifications?: boolean;
-  onNotificationsPress?: () => void; // Opcjonalne nadpisanie domyślnej nawigacji
+  onNotificationsPress?: () => void;
 }
 
 export function AppHeader({ 

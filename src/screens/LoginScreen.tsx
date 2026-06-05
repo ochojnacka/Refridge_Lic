@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { apiClient } from '../api/client';
-import { ShieldAlert, TrendingDown } from 'lucide-react-native'; // Opcjonalnie dodajemy biznesowe ikony
+import { ShieldAlert, TrendingDown } from 'lucide-react-native';
 
 interface LoginScreenProps {
   navigation: any;

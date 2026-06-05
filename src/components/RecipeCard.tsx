@@ -1,11 +1,10 @@
-// src/components/RecipeCard.tsx
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 import { ChefHat, TrendingUp, DollarSign } from "lucide-react-native";
 import { Recipe } from "../types/domain";
 import { COLORS, RADIUS, SHADOW } from "../theme";
-import { formatPrice } from "../utils/formatting"; // Zakładam, że masz tę funkcję z poprzednich ekranów
+import { formatPrice } from "../utils/formatting";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(46, 204, 113, 0.1)', // Delikatne tło pod ikonę
+    backgroundColor: 'rgba(46, 204, 113, 0.1)',
     alignItems: "center",
     justifyContent: "center",
   },

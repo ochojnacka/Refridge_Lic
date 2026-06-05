@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-  TextInput,
-  RefreshControl,
-  Alert,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, RefreshControl, Alert, StyleSheet } from 'react-native';
 import { CheckCircle, AlertCircle, ChevronDown, Bell, Info } from 'lucide-react-native';
 import { io, Socket } from 'socket.io-client';
 import { apiClient } from '../api/client';
@@ -70,7 +59,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
     loadInventory();
 
     // Setup WebSocket connection
-    // Upewnij się, że adres IP jest zgodny z tym w api/client.ts
+    // Adres IP jest zgodny z tym w api/client.ts
     socketRef.current = io('http://192.168.1.188:3000'); 
 
     socketRef.current.on('waste:logged', () => {
