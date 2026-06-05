@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# Notatki
+info/
+
 # Expo
 .expo/
 .expo-export-test/
