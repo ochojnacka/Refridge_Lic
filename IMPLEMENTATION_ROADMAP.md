@@ -13,10 +13,10 @@
 #### Zadania:
 
 1. **Usuń consumer screens** (1.5 h)
-   - [ ] FindRecipeScreen.tsx
+   - [ ] SuggestionsScreen.tsx
    - [ ] LandingScreen.tsx
-   - [ ] SavedRecipesScreen.tsx
-   - [ ] YourFridgeScreen.tsx
+   - [ ] InventoryScreen.tsx
+   - [ ] TabsScreen.tsx
    - [ ] MainMenuScreen.tsx
    - [ ] RecipeCreationScreen.tsx
    - [ ] AddToFridgeModal.tsx

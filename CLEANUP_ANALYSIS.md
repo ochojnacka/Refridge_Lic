@@ -12,10 +12,10 @@
 
 | Plik                                   | Powód                              | Akcja                       |
 | -------------------------------------- | ---------------------------------- | --------------------------- |
-| `src/screens/FindRecipeScreen.tsx`     | Consumer: szukanie przepisów       | ❌ USUŃ                     |
+| `src/screens/SuggestionsScreen.tsx`    | Consumer: szukanie przepisów       | ❌ USUŃ                     |
 | `src/screens/LandingScreen.tsx`        | Consumer onboarding (intro screen) | ❌ USUŃ + zmień entry point |
-| `src/screens/SavedRecipesScreen.tsx`   | Consumer: zapisane przepisy        | ❌ USUŃ                     |
-| `src/screens/YourFridgeScreen.tsx`     | Consumer: twoja lodówka            | ❌ USUŃ                     |
+| `src/screens/InventoryScreen.tsx`      | Consumer: zapisane przepisy        | ❌ USUŃ                     |
+| `src/screens/TabsScreen.tsx`           | Consumer: twoja lodówka            | ❌ USUŃ                     |
 | `src/screens/MainMenuScreen.tsx`       | Consumer: główne menu              | ❌ USUŃ                     |
 | `src/screens/RecipeCreationScreen.tsx` | Consumer: tworzenie przepisów      | ❌ USUŃ                     |
 | `src/screens/AddToFridgeModal.tsx`     | Consumer: dodawanie do lodówki     | ❌ USUŃ                     |
@@ -136,10 +136,10 @@ Usuń z `src/navigation/types.ts`:
 
 ```typescript
 // Usuń te screens z RootStackParamList
-"FindRecipe";
+"Suggestions";
 "Landing";
-"SavedRecipes";
-"YourFridge";
+"Inventory";
+"Tabs";
 "MainMenu";
 "RecipeCreation";
 "AddToFridge";
@@ -169,7 +169,7 @@ Zachowaj:
 ```
 src/
   screens/          (15 screens - MIX)
-    ├─ Consumer:    FindRecipeScreen, LandingScreen, SavedRecipesScreen, ...
+    ├─ Consumer:    SuggestionsScreen, LandingScreen, InventoryScreen, ...
     └─ B2B:         DashboardScreen, InventoryScreen, LoginScreen, ...
   components/       (6 components - MIX)
     ├─ Consumer:    CategoryFilter, MealTypeFilter, EmojiPicker
@@ -238,10 +238,10 @@ backend/
 
 ```bash
 # Screens
-rm src/screens/FindRecipeScreen.tsx
+rm src/screens/SuggestionsScreen.tsx
 rm src/screens/LandingScreen.tsx
-rm src/screens/SavedRecipesScreen.tsx
-rm src/screens/YourFridgeScreen.tsx
+rm src/screens/InventoryScreen.tsx
+rm src/screens/TabsScreen.tsx
 rm src/screens/MainMenuScreen.tsx
 rm src/screens/RecipeCreationScreen.tsx
 rm src/screens/AddToFridgeModal.tsx

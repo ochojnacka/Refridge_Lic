@@ -612,7 +612,7 @@ GET /menu/suggestions?restaurantId=...
 #### TASK 4.5: Inventory Screen Refactor (1 h)
 ```
 
-✅ Refactor YourFridgeScreen → InventoryScreen
+✅ Refactor TabsScreen → InventoryScreen
 
 Changes:
 ├─ Add "Cost Price" column

@@ -15,7 +15,7 @@
 
 ### ❌ Co trzeba zmienić:
 
-1. **26 zbędnych plików** z consumer fridge app (FindRecipeScreen, LandingScreen, itd.)
+1. **26 zbędnych plików** z consumer fridge app (SuggestionsScreen, LandingScreen, itd.)
 2. **SQLite zamiast PostgreSQL** - wymóg pracy licencjackiej
 3. **Brakuje 3 krytycznych screens** dla B2B workflow:
    - WasteLoggingScreen (kitchen staff)
@@ -29,7 +29,7 @@
 
 ### ❌ DO USUNIĘCIA (26 plików):
 
-**Screens**: FindRecipeScreen.tsx, LandingScreen.tsx, SavedRecipesScreen.tsx, YourFridgeScreen.tsx, MainMenuScreen.tsx, RecipeCreationScreen.tsx, AddToFridgeModal.tsx, RecipeModal.tsx
+**Screens**: SuggestionsScreen.tsx, LandingScreen.tsx, InventoryScreen.tsx, TabsScreen.tsx, MainMenuScreen.tsx, RecipeCreationScreen.tsx, AddToFridgeModal.tsx, RecipeModal.tsx
 
 **Components**: CategoryFilter.tsx, MealTypeFilter.tsx, EmojiPicker.tsx
 

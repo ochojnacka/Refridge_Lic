@@ -2,9 +2,9 @@ import React, { createContext, useContext, useCallback } from "react";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "./types";
 
-export type ScreenInFlow = "MainMenu" | "YourFridge" | "FindRecipe" | "SavedRecipes";
+export type ScreenInFlow = "MainMenu" | "Tabs" | "Suggestions" | "Inventory";
 
-const SCREEN_FLOW: ScreenInFlow[] = ["MainMenu", "YourFridge", "FindRecipe", "SavedRecipes"];
+const SCREEN_FLOW: ScreenInFlow[] = ["MainMenu", "Tabs", "Suggestions", "Inventory"];
 
 interface NavFlowContextValue {
   currentScreen: ScreenInFlow;

@@ -4,9 +4,9 @@ export type RootStackParamList = {
   Register: undefined;
   
   // B2B App screens
-  YourFridge: { transition?: "forward" | "back" } | undefined;
+  Tabs: { transition?: "forward" | "back" } | undefined;
   
-  // Tab screens (nested in YourFridge)
+  // Tab screens (nested in Tabs)
   Dashboard: undefined;
   Suggestions: undefined;
   Inventory: undefined;

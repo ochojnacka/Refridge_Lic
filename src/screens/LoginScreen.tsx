@@ -39,7 +39,7 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
     console.log('[LoginScreen] Login successful, navigating to Dashboard');
     setLoading(false);
     onLoginSuccess?.();
-    navigation.replace('YourFridge');
+    navigation.replace('Tabs');
   };
 
   const handleRegister = () => {

@@ -127,7 +127,7 @@ export function RootNavigator() {
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={{ headerShown: false }}
-            initialRouteName={isAuthenticated ? "YourFridge" : "Login"}
+            initialRouteName={isAuthenticated ? "Tabs" : "Login"}
           >
             {/* Auth Screens - Always available */}
             <Stack.Screen
@@ -139,7 +139,7 @@ export function RootNavigator() {
             <Stack.Screen name="Register" component={RegisterScreen} />
 
             {/* B2B App Screens - When authenticated */}
-            <Stack.Screen name="YourFridge" component={TabsNavigator} />
+            <Stack.Screen name="Tabs" component={TabsNavigator} />
             <Stack.Screen name="WasteLogging" component={WasteLoggingScreen} />
           </Stack.Navigator>
         </NavigationContainer>
