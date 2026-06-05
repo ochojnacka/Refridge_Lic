@@ -216,7 +216,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
         {profitabilityReport && (
           <TouchableOpacity
             style={{ backgroundColor: '#f0f9ff', padding: 16, borderRadius: 12, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#2ecc71' }}
-            onPress={() => navigation.navigate('ProfitabilityDetail')}
+            onPress={() => navigation.navigate('DetailedKPI')}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
               <TrendingUp size={24} color="#2ecc71" />
@@ -248,7 +248,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
         {wasteReport && (
           <TouchableOpacity
             style={{ backgroundColor: '#fef3f3', padding: 16, borderRadius: 12, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#e74c3c' }}
-            onPress={() => navigation.navigate('WasteDetail')}
+            onPress={() => navigation.navigate('DetailedKPI')}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
               <AlertTriangle size={24} color="#e74c3c" />
@@ -275,7 +275,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
         {inventoryHealth && (
           <TouchableOpacity
             style={{ backgroundColor: '#f3f9f0', padding: 16, borderRadius: 12, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#27ae60' }}
-            onPress={() => navigation.navigate('InventoryDetail')}
+            onPress={() => navigation.navigate('DetailedKPI')}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
               <Package size={24} color="#27ae60" />

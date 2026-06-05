@@ -70,7 +70,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => navigation.navigate('CreateRecipe')}
+            onPress={() => alert('Moduł tworzenia przepisów będzie dostępny wkrótce!')}
             style={{
               backgroundColor: '#2ecc71',
               padding: 10,
