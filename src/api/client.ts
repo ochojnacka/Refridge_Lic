@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { WasteLog, WasteReason } from '../types/domain';
 
 // 🔧 IMPORTANT: Change this to your laptop IP for mobile/simulator testing
 // Use: ipconfig (Windows) to find your IPv4 address
@@ -108,7 +109,7 @@ class ApiClient {
     return this.request('/inventory/items', {
       method: 'POST',
       body: { name, quantity, unit, costPrice, category },
-    });
+    });2
   }
 
   async updateInventoryItem(id: string, updates: any) {
@@ -127,10 +128,17 @@ class ApiClient {
     return this.request('/recipes', { method: 'GET' });
   }
 
-  async createRecipe(name: string, description: string, costPrice: number, salePrice: number, category: string, mealTypes: string[]) {
+  async createRecipe(name: string, instructions: string, costPrice: number, sellingPrice: number, category: string, ingredients: Array<{inventoryItemId: string, quantity: number, unit: string}> = []) {
     return this.request('/recipes', {
       method: 'POST',
-      body: { name, description, costPrice, salePrice, category, mealTypes, ingredientIds: [], prepTimeMinutes: 30 },
+      body: { 
+        name, 
+        instructions, 
+        costPrice, 
+        sellingPrice, 
+        category, 
+        ingredients 
+      },
     });
   }
 
@@ -143,22 +151,6 @@ class ApiClient {
 
   async deleteRecipe(id: string) {
     return this.request(`/recipes/${id}`, { method: 'DELETE' });
-  }
-
-  // Waste endpoints
-  async logWaste(itemId: string, quantity: number, reason: string) {
-    return this.request('/waste/log', {
-      method: 'POST',
-      body: { itemId, quantity, reason },
-    });
-  }
-
-  async getWasteLogs(dateFrom?: string, dateTo?: string) {
-    const params = new URLSearchParams();
-    if (dateFrom) params.append('dateFrom', dateFrom);
-    if (dateTo) params.append('dateTo', dateTo);
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request(`/waste/logs${query}`, { method: 'GET' });
   }
 
   // Sales endpoints
@@ -205,6 +197,22 @@ class ApiClient {
 
   async getMenuSuggestions(limit: number = 5) {
     return this.request(`/analytics/suggestions?limit=${limit}`, { method: 'GET' });
+  }
+
+  // Waste endpoints
+  async logWaste(itemId: string, quantity: number, reason: WasteReason) {
+    return this.request<WasteLog>('/waste/log', {
+      method: 'POST',
+      body: { itemId, quantity, reason },
+    });
+  }
+
+  async getWasteLogs(dateFrom?: string, dateTo?: string) {
+    const params = new URLSearchParams();
+    if (dateFrom) params.append('dateFrom', dateFrom);
+    if (dateTo) params.append('dateTo', dateTo);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<WasteLog[]>('/waste/logs${query}', { method: 'GET' });
   }
 }
 

@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal, TextInput, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useCallback} from 'react';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal, TextInput, RefreshControl, StyleSheet, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, Trash2, Edit2, ChevronDown } from 'lucide-react-native';
+import { Plus, Trash2, ChevronDown, Package, AlertTriangle } from 'lucide-react-native';
 import { apiClient } from '../api/client';
 import { formatPrice, formatQty } from '../utils/formatting';
+import { useFocusEffect } from '@react-navigation/native'; // <--- Dodaj to
+import { io } from 'socket.io-client'; // <--- Dodaj to
+import { AppHeader } from '../components/AppHeader';
+import { Unit, Category, UNITS, CATEGORIES } from '../types/domain';
 
 interface InventoryScreenProps {
   navigation: any;
@@ -54,8 +58,23 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      loadInventory();
+    }, [])
+  );
+
   useEffect(() => {
-    loadInventory();
+    const socket = io('http://192.168.0.249:3000'); 
+
+    socket.on('waste:logged', () => {
+      // Jeśli waste zostanie zalogowane, odświeżamy stan w tle
+      loadInventory();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const handleAddItem = async () => {

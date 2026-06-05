@@ -1,40 +1,41 @@
+// src/components/Layout.tsx
 import React from "react";
-import { ScrollView, StyleSheet, View, GestureResponderHandlers } from "react-native";
+import { ScrollView, StyleSheet, View, RefreshControl } from "react-native";
 import { COLORS, SPACING } from "../theme";
+
+interface ScreenContainerProps {
+  children: React.ReactNode;
+  scroll?: boolean;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  footerBottomInset?: number;
+  scrollBottomInset?: number;
+  refreshControl?: React.ReactElement; // Dodane wsparcie dla Pull-to-refresh
+  onScrollCallback?: (y: number) => void;
+  scrollViewRef?: React.RefObject<ScrollView | null>;
+}
 
 export function ScreenContainer({
   children,
   scroll = true,
   header,
   footer,
-  swipeResponder,
   footerBottomInset = 0,
-  scrollBottomInset = 100,
+  scrollBottomInset = 40, // Zmniejszony domyślny margines dolny (brak wielkich pływających przycisków B2C)
+  refreshControl,
   onScrollCallback,
   scrollViewRef,
-}: {
-  children: React.ReactNode;
-  scroll?: boolean;
-  header?: React.ReactNode;
-  footer?: React.ReactNode;
-  swipeResponder?: GestureResponderHandlers;
-  footerBottomInset?: number;
-  scrollBottomInset?: number;
-  onScrollCallback?: (y: number) => void;
-  scrollViewRef?: React.RefObject<ScrollView | null>;
-}) {
+}: ScreenContainerProps) {
   const contentView = scroll ? (
     <ScrollView
       ref={scrollViewRef}
       style={styles.scroll}
       contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomInset }]}
       showsVerticalScrollIndicator={false}
-      scrollEnabled={true}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
-      bounces={true}
-      alwaysBounceVertical={true}
-      onScroll={(e) => onScrollCallback?.(e.nativeEvent.contentOffset.y)}
+      refreshControl={refreshControl}
+      onScroll={onScrollCallback ? (e) => onScrollCallback(e.nativeEvent.contentOffset.y) : undefined}
       scrollEventThrottle={16}
     >
       {children}
@@ -44,7 +45,7 @@ export function ScreenContainer({
   );
 
   return (
-    <View style={styles.container} {...swipeResponder}>
+    <View style={styles.container}>
       {header}
       <View style={styles.contentArea} pointerEvents="box-none">
         {contentView}
@@ -57,28 +58,24 @@ export function ScreenContainer({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background, // Czyste tło pod czytelne wykresy i tabele
   },
-
   contentArea: {
     flex: 1,
     minHeight: 0,
   },
-
   scroll: {
     flex: 1,
   },
-
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.md, // Zmniejszono z lg na md: więcej miejsca na dane analityczne
+    paddingTop: SPACING.sm,
   },
-
   content: {
     flex: 1,
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.md,
   },
-
   footer: {
     position: "absolute",
     bottom: 0,

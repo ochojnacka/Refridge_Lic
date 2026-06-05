@@ -18,50 +18,61 @@ router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) =
 
     const { itemId, quantity, reason, unit } = req.body;
 
-    if (!itemId || quantity === undefined) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!itemId || quantity === undefined || quantity <= 0) {
+      return res.status(400).json({ error: 'Invalid or missing fields' });
     }
 
-    // Pobierz produkt z inwentarza, aby obliczyć wartość straty
-    const item = await inventoryRepository.findOne({
-      where: { id: itemId, restaurantId: req.user.restaurantId },
+    let savedWasteLog: WasteLog;
+
+    // --- TRANSAKCJA ---
+    await AppDataSource.transaction(async (transactionalEntityManager) => {
+      // 1. Pobierz produkt wewnątrz transakcji
+      const item = await transactionalEntityManager.findOne(InventoryItem, {
+        where: { id: itemId, restaurantId: req.user!.restaurantId },
+      });
+
+      if (!item) {
+        throw new Error('Inventory item not found');
+      }
+
+      // 2. Walidacja stanu (nie pozwalamy na ujemny stan)
+      if (item.quantity < quantity) {
+        throw new Error(`Insufficient stock. Available: ${item.quantity} ${item.unit}`);
+      }
+
+      // 3. Oblicz wartość straty
+      const value = quantity * item.costPrice;
+
+      // 4. Utwórz log straty
+      const wasteLog = transactionalEntityManager.create(WasteLog, {
+        restaurantId: req.user!.restaurantId,
+        itemId,
+        quantity,
+        reason,
+        value,
+        unit: unit || item.unit,
+      });
+      savedWasteLog = await transactionalEntityManager.save(wasteLog);
+
+      // 5. Zaktualizuj stan magazynowy
+      item.quantity -= quantity;
+      await transactionalEntityManager.save(item);
     });
 
-    if (!item) {
-      return res.status(404).json({ error: 'Inventory item not found' });
-    }
-
-    // Oblicz wartość straty w PLN
-    const value = quantity * item.costPrice;
-
-    // Utwórz wpis o stracie
-    const wasteLog = wasteLogRepository.create({
-      restaurantId: req.user.restaurantId,
-      itemId,
-      quantity,
-      reason,
-      value,
-      unit: unit || item.unit, // Używa jednostki z żądania lub domyślnej z produktu
-    });
-
-    await wasteLogRepository.save(wasteLog);
-
-    // Opcjonalnie: Zaktualizuj stan magazynowy
-    // item.quantity -= quantity;
-    // await inventoryRepository.save(item);
-
-    // --- INTEGRACJA WEBSOCKET ---
+    // --- PO ZATWIERDZENIU TRANSAKCJI ---
+    // Jeśli dotarliśmy tutaj, transakcja przebiegła pomyślnie.
+    
+    // Integracja WebSocket
     if (io) {
-      // Emituje zdarzenie o zalogowaniu straty. 
-      // W przyszłości (DEN 4) można ograniczyć emisję do konkretnej restauracji:
-      // io.to(`restaurant-${req.user.restaurantId}`).emit('waste:logged', wasteLog);
-      io.emit('waste:logged', wasteLog); 
+      io.emit('waste:logged', savedWasteLog!);
     }
 
-    res.status(201).json(wasteLog);
-  } catch (error) {
+    res.status(201).json(savedWasteLog!);
+  } catch (error: any) {
     console.error('Error logging waste:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    // Zwróć błąd (jeśli błąd pochodzi z naszej walidacji, przekaż go dalej)
+    const status = error.message.includes('not found') || error.message.includes('Insufficient') ? 400 : 500;
+    res.status(status).json({ error: error.message || 'Internal server error' });
   }
 });
 

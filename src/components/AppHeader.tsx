@@ -1,141 +1,113 @@
 import React from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, ArrowRight } from "lucide-react-native";
-import { COLORS, RADIUS, SPACING } from "../theme";
+import { useNavigation } from "@react-navigation/native"; // Dodane
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"; // Dodane
+import { ArrowLeft, Bell } from "lucide-react-native";
+import { COLORS } from "../theme";
+import { RootStackParamList } from "../navigation/types"; // Dodane
 
 interface AppHeaderProps {
   title?: string;
   onBack?: () => void;
+  showNotifications?: boolean;
+  onNotificationsPress?: () => void; // Opcjonalne nadpisanie domyślnej nawigacji
 }
 
-function ArrowButton({
-  kind,
-  onPress,
-}: {
-  kind: "back" | "forward";
-  onPress?: () => void;
-}) {
-  const Icon = kind === "back" ? ArrowLeft : ArrowRight;
+export function AppHeader({ 
+  title, 
+  onBack, 
+  showNotifications = true, 
+  onNotificationsPress 
+}: AppHeaderProps) {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleNotificationsPress = () => {
+    if (onNotificationsPress) {
+      onNotificationsPress();
+    } else {
+      navigation.navigate("Alerts");
+    }
+  };
 
   return (
-    <Pressable
-      disabled={!onPress}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.arrowButton,
-        !onPress && styles.arrowButtonDisabled,
-        pressed && onPress && styles.arrowButtonPressed,
-      ]}
-    >
-      <Icon
-        size={18}
-        color={onPress ? COLORS.primary : COLORS.surfaceMuted}
-        strokeWidth={2.4}
-      />
-    </Pressable>
-  );
-}
+    <SafeAreaView edges={["top"]} style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Lewa strona */}
+        <View style={styles.leftSection}>
+          {onBack ? (
+            <Pressable
+              onPress={onBack}
+              style={({ pressed }) => [styles.iconButton, pressed && styles.buttonPressed]}
+            >
+              <ArrowLeft size={22} color={COLORS.primary} strokeWidth={2.5} />
+            </Pressable>
+          ) : (
+            <Text style={styles.logo}>Refridge B2B</Text>
+          )}
+        </View>
 
-function LogoSection() {
-  return (
-    <View style={styles.logoSection}>
-      <Text style={styles.logo}>Refridge</Text>
-    </View>
-  );
-}
+        {/* Środek */}
+        <View style={styles.centerSection}>
+          {title && <Text style={styles.title} numberOfLines={1}>{title}</Text>}
+        </View>
 
-function NavigationSection({ title, onBack }: { title: string; onBack?: () => void }) {
-  return (
-    <View style={styles.navigationSection}>
-      <ArrowButton kind="back" onPress={onBack} />
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.arrowSpacer} />
-    </View>
-  );
-}
-
-export function AppHeader({ title, onBack }: AppHeaderProps) {
-  return (
-    <View style={styles.container}>
-      {/* GREEN AREA */}
-      <SafeAreaView edges={["top"]} style={styles.safeArea}>
-        <LogoSection />
-      </SafeAreaView>
-
-      {/* WHITE AREA BELOW (if navigation exists) */}
-      {title ? (
-        <NavigationSection title={title} onBack={onBack} />
-      ) : null}
-    </View>
+        {/* Prawa strona */}
+        <View style={styles.rightSection}>
+          {showNotifications ? (
+            <Pressable 
+              onPress={handleNotificationsPress}
+              style={({ pressed }) => [styles.iconButton, pressed && styles.buttonPressed]}
+            >
+              <Bell size={20} color={COLORS.primary} strokeWidth={2} />
+              <View style={styles.badge} />
+            </Pressable>
+          ) : (
+            <View style={styles.iconButtonSpacer} />
+          )}
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-  },
-
   safeArea: {
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.background, 
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-
-  logoSection: {
-    backgroundColor: COLORS.accent,
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: 12,
-    alignItems: "center",
-    justifyContent: "flex-end",
+  container: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
   },
-
-  logo: {
-    textAlign: "center",
-    fontSize: 64,
-    fontFamily: "Syne",
-    color: COLORS.white,
-    letterSpacing: -5.12,
-    lineHeight: 80,
-    fontWeight: "700",
-  },
-
-  navigationSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: 12,
-    backgroundColor: COLORS.background,
-  },
-
-  arrowButton: {
-    width: 38,
-    height: 38,
-    borderRadius: RADIUS.pill,
+  leftSection: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
+  centerSection: { flex: 2, alignItems: 'center', justifyContent: 'center' },
+  rightSection: { flex: 1, alignItems: 'flex-end', justifyContent: 'center' },
+  logo: { fontSize: 20, fontFamily: "Syne", color: COLORS.primary, fontWeight: "700" },
+  title: { fontSize: 16, color: '#333', fontWeight: "600" },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: COLORS.surfaceMuted,
+    backgroundColor: 'rgba(0,0,0,0.03)',
   },
-
-  arrowButtonDisabled: {
-    opacity: 0.4,
-  },
-
-  arrowSpacer: {
-    width: 38,
-    height: 38,
-  },
-
-  title: {
-    flex: 1,
-    fontSize: 24,
-    lineHeight: 25,
-    letterSpacing: 2.4,
-    color: COLORS.primary,
-    textTransform: "lowercase",
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  arrowButtonPressed: {
-    opacity: 0.7,
-  },
+  iconButtonSpacer: { width: 40 },
+  buttonPressed: { opacity: 0.6, transform: [{ scale: 0.96 }] },
+  badge: {
+    position: 'absolute',
+    top: 8,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#e74c3c',
+    borderWidth: 1.5,
+    borderColor: COLORS.background,
+  }
 });

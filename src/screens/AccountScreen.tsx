@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LogOut, User, Building2 } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { LogOut, User, Building2, ShieldCheck } from 'lucide-react-native';
 import { apiClient } from '../api/client';
+import { AppHeader } from '../components/AppHeader';
 
 interface AccountScreenProps {
   navigation: any;
@@ -20,17 +20,21 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
   const loadUserInfo = async () => {
     try {
       setLoading(true);
-      // Get user info from API client
       const token = (apiClient as any).token;
       if (!token) {
         setLoading(false);
         return;
       }
 
-      // Decode JWT to get user info (without verification since we trust our own backend)
+      // Decode JWT to get user info (payload is the 2nd part)
       const parts = token.split('.');
       if (parts.length === 3) {
-        const decoded = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+        // Dekodowanie Base64 bez użycia Buffer
+        // Base64Url (używane w JWT) wymaga zamiany znaków URL-safe
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        
+        // atob jest standardową funkcją w nowoczesnym React Native
+        const decoded = JSON.parse(atob(base64));
         setUserInfo(decoded);
       }
     } catch (error) {
@@ -52,97 +56,229 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#2ecc71" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
-      <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ padding: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 24, color: '#333' }}>👤 Account</Text>
-
-        {/* User Info Card */}
-        <View style={{ backgroundColor: '#f0f9ff', padding: 16, borderRadius: 12, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#2ecc71' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <User size={24} color="#2ecc71" />
-            <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>User Information</Text>
+    <View style={styles.container}>
+      {/* Korzystamy z naszego nowego, biznesowego Headera */}
+      <AppHeader title="Workspace Account" showNotifications={true} />
+      
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        
+        {/* Karta Informacji o Użytkowniku */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainerPrimary}>
+              <User size={22} color="#2ecc71" />
+            </View>
+            <Text style={styles.cardTitle}>User Information</Text>
           </View>
 
           {userInfo && (
-            <>
-              {/* Email */}
-              <View style={{ marginBottom: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#e0f2fe' }}>
-                <Text style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>Email</Text>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#333' }}>{userInfo.email}</Text>
+            <View style={styles.cardBody}>
+              <View style={styles.dataRow}>
+                <Text style={styles.label}>Corporate Email</Text>
+                <Text style={styles.value}>{userInfo.email}</Text>
               </View>
 
-              {/* Name */}
               {userInfo.name && (
-                <View style={{ marginBottom: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#e0f2fe' }}>
-                  <Text style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>Name</Text>
-                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#333' }}>{userInfo.name}</Text>
+                <View style={styles.dataRow}>
+                  <Text style={styles.label}>Administrator Name</Text>
+                  <Text style={styles.value}>{userInfo.name}</Text>
                 </View>
               )}
 
-              {/* Role */}
               {userInfo.role && (
-                <View style={{ marginBottom: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#e0f2fe' }}>
-                  <Text style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>Role</Text>
-                  <View style={{ backgroundColor: '#e8f8f5', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, alignSelf: 'flex-start' }}>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#27ae60', textTransform: 'capitalize' }}>{userInfo.role}</Text>
+                <View style={styles.dataRow}>
+                  <Text style={styles.label}>System Role</Text>
+                  <View style={styles.badge}>
+                    <ShieldCheck size={14} color="#27ae60" />
+                    <Text style={styles.badgeText}>{userInfo.role}</Text>
                   </View>
                 </View>
               )}
-
-              {/* Restaurant ID */}
-              {userInfo.restaurantId && (
-                <View>
-                  <Text style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>Restaurant ID</Text>
-                  <Text style={{ fontSize: 13, color: '#999', fontFamily: 'monospace' }}>{userInfo.restaurantId}</Text>
-                </View>
-              )}
-            </>
+            </View>
           )}
         </View>
 
-        {/* Restaurant Info Card */}
-        <View style={{ backgroundColor: '#f3f9f0', padding: 16, borderRadius: 12, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#27ae60' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <Building2 size={24} color="#27ae60" />
-            <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Restaurant Details</Text>
+        {/* Karta Restauracji (Workspace) */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainerSecondary}>
+              <Building2 size={22} color="#3498db" />
+            </View>
+            <Text style={styles.cardTitle}>Connected Workspace</Text>
           </View>
-          <Text style={{ fontSize: 14, color: '#666' }}>Connected to restaurant {userInfo?.restaurantId?.slice(0, 8)}...</Text>
+          
+          <View style={styles.cardBody}>
+            <View style={[styles.dataRow, { borderBottomWidth: 0, paddingBottom: 0 }]}>
+              <Text style={styles.label}>Restaurant ID</Text>
+              <Text style={styles.valueMono}>{userInfo?.restaurantId || 'Pending connection...'}</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Logout Button */}
-        <TouchableOpacity
-          onPress={handleLogout}
-          style={{
-            backgroundColor: '#e74c3c',
-            padding: 14,
-            borderRadius: 8,
-            alignItems: 'center',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-        >
-          <LogOut size={20} color="white" />
-          <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Logout</Text>
-        </TouchableOpacity>
-
-        {/* Info Section */}
-        <View style={{ marginTop: 30, padding: 12, backgroundColor: '#f5f5f5', borderRadius: 8 }}>
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#666', marginBottom: 8 }}>Account Info</Text>
-          <Text style={{ fontSize: 12, color: '#999', lineHeight: 18 }}>
-            This is your restaurant management account. You can manage inventory, view analytics, and access AI-powered menu suggestions.
+        {/* Informacja o systemie */}
+        <View style={styles.infoBox}>
+          <Text style={styles.infoBoxTitle}>Refridge B2B Engine</Text>
+          <Text style={styles.infoBoxText}>
+            This is your secure restaurant management portal. Use the navigation bar to manage inventory, log waste, and access AI-powered profitability insights.
           </Text>
         </View>
-      </View>
+
+        {/* Przycisk Wyloguj */}
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <LogOut size={20} color="white" />
+          <Text style={styles.logoutText}>Secure Logout</Text>
+        </TouchableOpacity>
+
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  iconContainerPrimary: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  iconContainerSecondary: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#212529',
+  },
+  cardBody: {
+    gap: 16,
+  },
+  dataRow: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f5',
+    paddingBottom: 16,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#868e96',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#343a40',
+  },
+  valueMono: {
+    fontSize: 14,
+    color: '#495057',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    backgroundColor: '#f1f3f5',
+    padding: 8,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e8f8f5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    gap: 6,
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#27ae60',
+    textTransform: 'capitalize',
+  },
+  infoBox: {
+    backgroundColor: '#e9ecef',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 32,
+    borderLeftWidth: 4,
+    borderLeftColor: '#adb5bd',
+  },
+  infoBoxTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#495057',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  infoBoxText: {
+    fontSize: 13,
+    color: '#6c757d',
+    lineHeight: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#fa5252',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    shadowColor: '#fa5252',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+});

@@ -3,7 +3,6 @@ import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { Text, TextInput } from "react-native";
 import { RootNavigator } from "./src/navigation/RootNavigator";
-import { AppStateProvider } from "./src/state/AppStateContext";
 
 const DEFAULT_TEXT_STYLE = {
   fontFamily: "SFProDisplayLight",
@@ -28,9 +27,9 @@ export default function App() {
   }
 
   return (
-    <AppStateProvider>
+    <>
       <StatusBar style="dark" />
       <RootNavigator />
-    </AppStateProvider>
+    </>
   );
 }

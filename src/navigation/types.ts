@@ -1,19 +1,21 @@
 export type RootStackParamList = {
-  // Auth screens
+  // --- Auth Flow ---
   Login: undefined;
   Register: undefined;
   
-  // B2B App screens
+  // --- Main App Flow ---
   Tabs: { transition?: "forward" | "back" } | undefined;
   
-  // Tab screens (nested in Tabs)
+  // --- Bottom Tab Screens (Nested in Tabs) ---
   Dashboard: undefined;
   Suggestions: undefined;
   Inventory: undefined;
   Account: undefined;
   
-  // Future screens (placeholder for new features)
+  // --- Feature Screens (Pushed on top of Tabs) ---
   WasteLogging: undefined;
   DetailedKPI: undefined;
+  
+  // --- Upcoming Features (DEN 4 Roadmap) ---
   Alerts: undefined;
 };
