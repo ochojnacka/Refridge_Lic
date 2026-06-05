@@ -7,15 +7,10 @@ import { Recipe } from '../models/Recipe';
 export interface WasteReport {
   totalWaste: number; // PLN
   totalQuantity: number; // kg/units
-  wastePercentage: number; // % of inventory
-  topWastedItems: Array<{
-    itemName: string;
-    quantity: number;
-    value: number;
-    reason: string;
-  }>;
-  wasteByReason: { [key: string]: { count: number; value: number } };
-  trend7days: number[]; // Daily waste values
+  wastePercentage: number; // %
+  topWastedItems: Array<{ itemName: string; quantity: number; value: number; reason: string }>;
+  wasteByCategory: Record<string, number>;
+  trend: Array<{ date: string; waste: number }>;
 }
 
 export interface ProfitabilityReport {
@@ -23,44 +18,23 @@ export interface ProfitabilityReport {
   totalCost: number;
   totalProfit: number;
   profitMargin: number; // %
-  topRecipes: Array<{
-    name: string;
-    totalRevenue: number;
-    totalCost: number;
-    profit: number;
-    quantity: number;
-  }>;
+  topRecipes: Array<{ name: string; revenue: number; cost: number; profit: number; quantity: number }>;
+  bottomRecipes: Array<{ name: string; revenue: number; cost: number; profit: number; quantity: number }>;
+  trend: Array<{ date: string; revenue: number }>;
 }
 
 export interface InventoryHealthReport {
   totalItems: number;
   totalValue: number; // PLN
-  criticalLevels: Array<{
-    itemName: string;
-    quantity: number;
-    unit: string;
-    status: 'CRITICAL' | 'LOW' | 'OK';
-  }>;
-  expiringItems: Array<{
-    itemName: string;
-    expiryDate: string;
-    daysUntilExpiry: number;
-    quantity: number;
-  }>;
-  averageWastePercentage: number;
+  stockTurnoverDays: number;
+  criticalLevels: Array<{ itemName: string; quantity: number; unit: string; status: 'CRITICAL' | 'LOW' | 'OK' }>;
 }
 
-export interface DemandPattern {
-  recipeId: string;
-  recipeName: string;
-  avgDailyDemand: number;
-  peakDays: string[]; // Days of week with highest demand
-  trend: {
-    week1: number;
-    week2: number;
-    week3: number;
-    week4: number;
-  };
+export interface InvestmentAppraisal {
+  monthlySavings: number;
+  monthlySaaSCost: number;
+  netBenefit: number;
+  estimatedNPV3Years: number;
 }
 
 export class AnalyticsService {
@@ -69,152 +43,110 @@ export class AnalyticsService {
   private inventoryRepository = AppDataSource.getRepository(InventoryItem);
   private recipeRepository = AppDataSource.getRepository(Recipe);
 
-  /**
-   * Get waste report for date range
-   */
-  async getWasteReport(
-    restaurantId: string,
-    dateFrom?: Date,
-    dateTo?: Date
-  ): Promise<WasteReport> {
+  async getWasteReport(restaurantId: string, rangeDays: number = 30): Promise<WasteReport> {
     const now = new Date();
-    const from = dateFrom || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const to = dateTo || now;
+    const from = new Date(now.getTime() - rangeDays * 24 * 60 * 60 * 1000);
 
-    const logs = await this.wasteRepository.find({
-      where: {
-        restaurantId,
-        timestamp: from,
-      },
-    });
+    const logs = await this.wasteRepository
+      .createQueryBuilder('waste')
+      .leftJoinAndSelect('waste.item', 'item')
+      .where('waste.restaurantId = :restaurantId', { restaurantId })
+      .andWhere('waste.timestamp >= :from', { from })
+      .getMany();
 
-    const filteredLogs = logs.filter(l => new Date(l.timestamp) <= to);
+    const totalWaste = logs.reduce((sum, l) => sum + (l.value || 0), 0);
+    const totalQuantity = logs.reduce((sum, l) => sum + l.quantity, 0);
 
-    // Calculate totals
-    const totalWaste = filteredLogs.reduce((sum, l) => sum + (l.value || 0), 0);
-    const totalQuantity = filteredLogs.reduce((sum, l) => sum + l.quantity, 0);
-
-    // Group by item
-    const byItem = new Map<string, WasteLog[]>();
-    for (const log of filteredLogs) {
-      if (!byItem.has(log.itemId)) {
-        byItem.set(log.itemId, []);
-      }
-      byItem.get(log.itemId)!.push(log);
+    // Waste by category
+    const wasteByCategory: Record<string, number> = {};
+    for (const log of logs) {
+      const category = log.item?.category || 'Other';
+      wasteByCategory[category] = (wasteByCategory[category] || 0) + (log.value || 0);
     }
 
     // Top wasted items
-    const topWastedItems = await Promise.all(
-      Array.from(byItem.entries())
-        .map(async ([itemId, itemLogs]) => {
-          const item = await this.inventoryRepository.findOne({ where: { id: itemId } });
-          return {
-            itemName: item?.name || 'Unknown',
-            quantity: itemLogs.reduce((sum, l) => sum + l.quantity, 0),
-            value: itemLogs.reduce((sum, l) => sum + (l.value || 0), 0),
-            reason: itemLogs[0]?.reason || 'Unknown',
-          };
-        })
-    );
-
-    topWastedItems.sort((a, b) => b.value - a.value);
-
-    // Waste by reason
-    const wasteByReason: { [key: string]: { count: number; value: number } } = {};
-    for (const log of filteredLogs) {
-      const reason = log.reason || 'Unknown';
-      if (!wasteByReason[reason]) {
-        wasteByReason[reason] = { count: 0, value: 0 };
+    const byItem = new Map<string, { itemName: string; quantity: number; value: number; reason: string }>();
+    for (const log of logs) {
+      if (!byItem.has(log.itemId)) {
+        byItem.set(log.itemId, {
+          itemName: log.item?.name || 'Unknown',
+          quantity: 0,
+          value: 0,
+          reason: log.reason || 'Expired',
+        });
       }
-      wasteByReason[reason].count++;
-      wasteByReason[reason].value += log.value || 0;
+      const record = byItem.get(log.itemId)!;
+      record.quantity += log.quantity;
+      record.value += log.value;
+    }
+    const topWastedItems = Array.from(byItem.values())
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+
+    // Trend
+    const trendMap = new Map<string, number>();
+    for (const log of logs) {
+      const dateStr = new Date(log.timestamp).toISOString().split('T')[0];
+      trendMap.set(dateStr, (trendMap.get(dateStr) || 0) + log.value);
+    }
+    
+    // Fill empty days for the trend
+    const trend: Array<{ date: string; waste: number }> = [];
+    for (let i = rangeDays - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toISOString().split('T')[0];
+      trend.push({ date: dateStr, waste: Math.round((trendMap.get(dateStr) || 0) * 100) / 100 });
     }
 
-    // 7-day trend
-    const trend7days: number[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const dayStart = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
-
-      const dayLogs = filteredLogs.filter(
-        l => new Date(l.timestamp) >= dayStart && new Date(l.timestamp) < dayEnd
-      );
-
-      const dayTotal = dayLogs.reduce((sum, l) => sum + (l.value || 0), 0);
-      trend7days.push(Math.round(dayTotal * 100) / 100);
-    }
-
-    // Estimate waste percentage (rough: waste value / inventory value)
-    const allInventory = await this.inventoryRepository.find({
-      where: { restaurantId },
-    });
-    const inventoryValue = allInventory.reduce(
-      (sum, item) => sum + item.quantity * item.costPrice,
-      0
-    );
-
-    const wastePercentage = inventoryValue > 0 ? (totalWaste / inventoryValue) * 100 : 0;
+    // Waste percentage (waste value / estimated COGS + waste)
+    const sales = await this.saleRepository
+      .createQueryBuilder('sale')
+      .leftJoinAndSelect('sale.recipe', 'recipe')
+      .where('sale.restaurantId = :restaurantId', { restaurantId })
+      .andWhere('sale.timestamp >= :from', { from })
+      .getMany();
+      
+    const totalCOGS = sales.reduce((sum, s) => sum + (s.quantity * (s.recipe?.costPrice || 0)), 0);
+    const wastePercentage = (totalCOGS + totalWaste) > 0 ? (totalWaste / (totalCOGS + totalWaste)) * 100 : 0;
 
     return {
       totalWaste: Math.round(totalWaste * 100) / 100,
       totalQuantity: Math.round(totalQuantity * 100) / 100,
       wastePercentage: Math.round(wastePercentage * 100) / 100,
-      topWastedItems: topWastedItems.slice(0, 5),
-      wasteByReason,
-      trend7days,
+      topWastedItems,
+      wasteByCategory,
+      trend,
     };
   }
 
-  /**
-   * Get profitability report
-   */
-  async getProfitabilityReport(
-    restaurantId: string,
-    dateFrom?: Date,
-    dateTo?: Date
-  ): Promise<ProfitabilityReport> {
+  async getProfitabilityReport(restaurantId: string, rangeDays: number = 30): Promise<ProfitabilityReport> {
     const now = new Date();
-    const from = dateFrom || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const to = dateTo || now;
+    const from = new Date(now.getTime() - rangeDays * 24 * 60 * 60 * 1000);
 
     const sales = await this.saleRepository
       .createQueryBuilder('sale')
       .leftJoinAndSelect('sale.recipe', 'recipe')
       .where('sale.restaurantId = :restaurantId', { restaurantId })
       .andWhere('sale.timestamp >= :from', { from })
-      .andWhere('sale.timestamp <= :to', { to })
       .getMany();
 
     let totalRevenue = 0;
     let totalCost = 0;
-
-    const byRecipe = new Map<
-      string,
-      {
-        name: string;
-        revenue: number;
-        cost: number;
-        quantity: number;
-      }
-    >();
+    const byRecipe = new Map<string, { name: string; revenue: number; cost: number; quantity: number }>();
+    const trendMap = new Map<string, number>();
 
     for (const sale of sales) {
       totalRevenue += sale.revenue;
+      const cost = sale.quantity * (sale.recipe?.costPrice || 0);
+      totalCost += cost;
+
+      const dateStr = new Date(sale.timestamp).toISOString().split('T')[0];
+      trendMap.set(dateStr, (trendMap.get(dateStr) || 0) + sale.revenue);
 
       if (sale.recipe) {
-        const cost = sale.quantity * sale.recipe.costPrice;
-        totalCost += cost;
-
         if (!byRecipe.has(sale.recipeId)) {
-          byRecipe.set(sale.recipeId, {
-            name: sale.recipe.name,
-            revenue: 0,
-            cost: 0,
-            quantity: 0,
-          });
+          byRecipe.set(sale.recipeId, { name: sale.recipe.name, revenue: 0, cost: 0, quantity: 0 });
         }
-
         const rec = byRecipe.get(sale.recipeId)!;
         rec.revenue += sale.revenue;
         rec.cost += cost;
@@ -225,16 +157,24 @@ export class AnalyticsService {
     const totalProfit = totalRevenue - totalCost;
     const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
-    const topRecipes = Array.from(byRecipe.values())
-      .map(r => ({
-        name: r.name,
-        totalRevenue: Math.round(r.revenue * 100) / 100,
-        totalCost: Math.round(r.cost * 100) / 100,
-        profit: Math.round((r.revenue - r.cost) * 100) / 100,
-        quantity: r.quantity,
-      }))
-      .sort((a, b) => b.profit - a.profit)
-      .slice(0, 10);
+    const recipesList = Array.from(byRecipe.values()).map(r => ({
+      name: r.name,
+      revenue: Math.round(r.revenue * 100) / 100,
+      cost: Math.round(r.cost * 100) / 100,
+      profit: Math.round((r.revenue - r.cost) * 100) / 100,
+      quantity: r.quantity,
+    }));
+
+    recipesList.sort((a, b) => b.profit - a.profit);
+    const topRecipes = recipesList.slice(0, 5);
+    const bottomRecipes = [...recipesList].reverse().slice(0, 5);
+
+    const trend: Array<{ date: string; revenue: number }> = [];
+    for (let i = rangeDays - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toISOString().split('T')[0];
+      trend.push({ date: dateStr, revenue: Math.round((trendMap.get(dateStr) || 0) * 100) / 100 });
+    }
 
     return {
       totalRevenue: Math.round(totalRevenue * 100) / 100,
@@ -242,21 +182,15 @@ export class AnalyticsService {
       totalProfit: Math.round(totalProfit * 100) / 100,
       profitMargin: Math.round(profitMargin * 100) / 100,
       topRecipes,
+      bottomRecipes,
+      trend,
     };
   }
 
-  /**
-   * Get inventory health report
-   */
   async getInventoryHealth(restaurantId: string): Promise<InventoryHealthReport> {
-    const items = await this.inventoryRepository.find({
-      where: { restaurantId },
-    });
-
-    const now = new Date();
+    const items = await this.inventoryRepository.find({ where: { restaurantId } });
     const totalValue = items.reduce((sum, item) => sum + item.quantity * item.costPrice, 0);
 
-    // Critical levels: < 10 units, Low: < 30 units
     const criticalLevels = items
       .filter(item => item.quantity < 30)
       .map(item => ({
@@ -267,98 +201,48 @@ export class AnalyticsService {
       }))
       .sort((a, b) => a.quantity - b.quantity);
 
-    // Expiring items: within 7 days
-    const expiringItems = items
-      .filter(item => {
-        if (!item.expiryDate) return false;
-        const daysUntil =
-          (new Date(item.expiryDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-        return daysUntil >= 0 && daysUntil <= 7;
-      })
-      .map(item => ({
-        itemName: item.name,
-        expiryDate: new Date(item.expiryDate!).toISOString().split('T')[0],
-        daysUntilExpiry: Math.round(
-          (new Date(item.expiryDate!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-        ),
-        quantity: item.quantity,
-      }))
-      .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+    // Calculate Stock Turnover Days based on last 30 days COGS
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const sales = await this.saleRepository
+      .createQueryBuilder('sale')
+      .leftJoinAndSelect('sale.recipe', 'recipe')
+      .where('sale.restaurantId = :restaurantId', { restaurantId })
+      .andWhere('sale.timestamp >= :from', { from: thirtyDaysAgo })
+      .getMany();
 
-    // Average waste percentage from inventory
-    const avgWaste = items.length > 0 ? items.reduce((sum, i) => sum + i.wastePercentage, 0) / items.length : 0;
+    const monthlyCOGS = sales.reduce((sum, s) => sum + (s.quantity * (s.recipe?.costPrice || 0)), 0);
+    const stockTurnoverDays = monthlyCOGS > 0 ? (totalValue / (monthlyCOGS / 30)) : 0;
 
     return {
       totalItems: items.length,
       totalValue: Math.round(totalValue * 100) / 100,
+      stockTurnoverDays: Math.round(stockTurnoverDays * 10) / 10,
       criticalLevels,
-      expiringItems,
-      averageWastePercentage: Math.round(avgWaste * 100) / 100,
     };
   }
 
-  /**
-   * Get demand pattern for recipe
-   */
-  async getDemandPattern(
-    restaurantId: string,
-    recipeId: string
-  ): Promise<DemandPattern | null> {
-    const recipe = await this.recipeRepository.findOne({
-      where: { id: recipeId, restaurantId },
-    });
+  async getInvestmentAppraisal(restaurantId: string): Promise<InvestmentAppraisal> {
+    const WACC = 0.1031; // Wartość 10.31% dla modelu kalkulacji zalecona w ramach weryfikacji WACC
+    const monthlySaaSCost = 300; 
+    
+    // Szacunkowe uśrednione oszczędności miesięczne z tytułu redukcji odpadów (na podstawie baseline studium przypadku)
+    const monthlyWasteSavings = 960; 
+    const monthlyMarginImprovement = 750;
+    const netBenefit = (monthlyWasteSavings + monthlyMarginImprovement) - monthlySaaSCost;
 
-    if (!recipe) return null;
+    // Kalkulacja NPV dla przepływów z 3 lat (36 miesięcy)
+    let npv = 0;
+    const monthlyDiscountRate = Math.pow(1 + WACC, 1 / 12) - 1;
 
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-    const sales = await this.saleRepository.find({
-      where: {
-        restaurantId,
-        recipeId,
-        timestamp: thirtyDaysAgo,
-      },
-    });
-
-    // Average daily demand
-    const avgDailyDemand = sales.length > 0 ? sales.reduce((sum, s) => sum + s.quantity, 0) / 30 : 0;
-
-    // Peak days (0 = Sunday, 1 = Monday, etc)
-    const byDayOfWeek = new Map<number, number>();
-    for (const sale of sales) {
-      const day = sale.dayOfWeek;
-      byDayOfWeek.set(day, (byDayOfWeek.get(day) || 0) + sale.quantity);
-    }
-
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const peakDays = Array.from(byDayOfWeek.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-      .map(([day]) => dayNames[day]);
-
-    // 4-week trend
-    const now = new Date();
-    const trend = {
-      week1: 0,
-      week2: 0,
-      week3: 0,
-      week4: 0,
-    };
-
-    for (const sale of sales) {
-      const daysAgo = (now.getTime() - new Date(sale.timestamp).getTime()) / (1000 * 60 * 60 * 24);
-      if (daysAgo <= 7) trend.week1 += sale.quantity;
-      else if (daysAgo <= 14) trend.week2 += sale.quantity;
-      else if (daysAgo <= 21) trend.week3 += sale.quantity;
-      else trend.week4 += sale.quantity;
+    for (let month = 1; month <= 36; month++) {
+      npv += netBenefit / Math.pow(1 + monthlyDiscountRate, month);
     }
 
     return {
-      recipeId,
-      recipeName: recipe.name,
-      avgDailyDemand: Math.round(avgDailyDemand * 100) / 100,
-      peakDays,
-      trend,
+      monthlySavings: monthlyWasteSavings + monthlyMarginImprovement,
+      monthlySaaSCost,
+      netBenefit,
+      estimatedNPV3Years: Math.round(npv * 100) / 100
     };
   }
 }

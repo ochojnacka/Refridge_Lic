@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 🔧 IMPORTANT: Change this to your laptop IP for mobile/simulator testing
 // Use: ipconfig (Windows) to find your IPv4 address
 // Example: http://192.168.1.13:3000
-const API_BASE_URL = 'http://192.168.1.188:3000';
+const API_BASE_URL = 'http://192.168.0.249:3000';
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -183,24 +183,20 @@ class ApiClient {
   }
 
   // Analytics endpoints
-  async getWasteReport(dateFrom?: string, dateTo?: string) {
-    const params = new URLSearchParams();
-    if (dateFrom) params.append('dateFrom', dateFrom);
-    if (dateTo) params.append('dateTo', dateTo);
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request(`/analytics/waste-report${query}`, { method: 'GET' });
+  async getWasteReport(range: string = '30days') {
+    return this.request(`/analytics/waste-report?range=${range}`, { method: 'GET' });
   }
 
-  async getProfitabilityReport(dateFrom?: string, dateTo?: string) {
-    const params = new URLSearchParams();
-    if (dateFrom) params.append('dateFrom', dateFrom);
-    if (dateTo) params.append('dateTo', dateTo);
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request(`/analytics/profitability${query}`, { method: 'GET' });
+  async getProfitabilityReport(range: string = '30days') {
+    return this.request(`/analytics/profitability?range=${range}`, { method: 'GET' });
   }
 
   async getInventoryHealth() {
     return this.request('/analytics/inventory-health', { method: 'GET' });
+  }
+
+  async getInvestmentAppraisal() {
+    return this.request('/analytics/investment-appraisal', { method: 'GET' });
   }
 
   async getDemandPattern(recipeId: string) {

@@ -71,7 +71,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
     loadInventory();
 
     // Setup WebSocket connection
-    socketRef.current = io('http://192.168.1.188:3000'); // Adres z apiClient
+    socketRef.current = io('http://192.168.1.188:3000'); // Pamiętaj, by upewnić się, że to Twoje IP
 
     socketRef.current.on('waste:logged', (data) => {
       setLastWasteTime(Date.now());
@@ -94,7 +94,8 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
 
     const interval = setInterval(() => {
       const secondsAgo = Math.floor((Date.now() - lastWasteTime) / 1000);
-      if (secondsAgo <= 60) {
+      // Zmiana czasu wyświetlania powiadomienia do 10 sekund
+      if (secondsAgo <= 10) {
         setBadgeText(`New waste logged ${secondsAgo}s ago`);
       } else {
         setBadgeText(null);
@@ -164,6 +165,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadInventory(true)} />}
         style={{ flex: 1 }}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
@@ -240,13 +242,17 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
 
         {/* Form Container */}
         <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 30 }}>
+          
           {/* Item Selector */}
-          <View style={{ marginBottom: 20 }}>
+          <View style={{ marginBottom: 20, zIndex: 2000 }}>
             <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.text, marginBottom: 8 }}>
               Select Item *
             </Text>
             <TouchableOpacity
-              onPress={() => setShowItemPicker(!showItemPicker)}
+              onPress={() => {
+                setShowItemPicker(!showItemPicker);
+                setShowReasonPicker(false); // Zamknij drugi picker jeśli jest otwarty
+              }}
               style={{
                 paddingHorizontal: 12,
                 paddingVertical: 12,
@@ -275,53 +281,64 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
               />
             </TouchableOpacity>
 
-            {/* Item Picker Dropdown */}
+            {/* Item Picker Dropdown - Z-Index i Position Absolute */}
             {showItemPicker && (
               <View
                 style={{
-                  marginTop: 8,
+                  position: 'absolute',
+                  top: 75,
+                  left: 0,
+                  right: 0,
                   backgroundColor: COLORS.surface,
                   borderRadius: RADIUS.md,
                   borderWidth: 1,
                   borderColor: COLORS.border,
-                  maxHeight: 300,
+                  maxHeight: 250,
+                  zIndex: 2001,
+                  elevation: 5, // Cień Android
+                  shadowColor: '#000', // Cienie iOS
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
                 }}
               >
-                {items.length === 0 ? (
-                  <Text style={{ padding: 12, color: COLORS.textSecondary, textAlign: 'center' }}>
-                    No items available
-                  </Text>
-                ) : (
-                  items.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => {
-                        setSelectedItem(item);
-                        setShowItemPicker(false);
-                      }}
-                      style={{
-                        paddingHorizontal: 12,
-                        paddingVertical: 12,
-                        borderBottomWidth: 1,
-                        borderBottomColor: COLORS.border,
-                      }}
-                    >
-                      <Text style={{ fontSize: 14, color: COLORS.text, fontWeight: '500' }}>
-                        {item.name}
-                      </Text>
-                      <Text style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>
-                        Stock: {formatQty(item.quantity, item.unit)} • {formatPrice(item.costPrice)}/
-                        {item.unit}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                )}
+                <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
+                  {items.length === 0 ? (
+                    <Text style={{ padding: 12, color: COLORS.textSecondary, textAlign: 'center' }}>
+                      No items available
+                    </Text>
+                  ) : (
+                    items.map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => {
+                          setSelectedItem(item);
+                          setShowItemPicker(false);
+                        }}
+                        style={{
+                          paddingHorizontal: 12,
+                          paddingVertical: 12,
+                          borderBottomWidth: 1,
+                          borderBottomColor: COLORS.border,
+                        }}
+                      >
+                        <Text style={{ fontSize: 14, color: COLORS.text, fontWeight: '500' }}>
+                          {item.name}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>
+                          Stock: {formatQty(item.quantity, item.unit)} • {formatPrice(item.costPrice)}/
+                          {item.unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </ScrollView>
               </View>
             )}
           </View>
 
           {/* Quantity Input */}
-          <View style={{ marginBottom: 20 }}>
+          <View style={{ marginBottom: 20, zIndex: 1 }}>
             <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.text, marginBottom: 8 }}>
               Quantity * ({selectedItem?.unit || 'unit'})
             </Text>
@@ -330,6 +347,10 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
               onChangeText={setQuantity}
               keyboardType="decimal-pad"
               placeholder="0.00"
+              onFocus={() => {
+                setShowItemPicker(false);
+                setShowReasonPicker(false);
+              }}
               style={{
                 paddingHorizontal: 12,
                 paddingVertical: 12,
@@ -344,12 +365,15 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
           </View>
 
           {/* Reason Selector */}
-          <View style={{ marginBottom: 20 }}>
+          <View style={{ marginBottom: 20, zIndex: 1000 }}>
             <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.text, marginBottom: 8 }}>
               Reason *
             </Text>
             <TouchableOpacity
-              onPress={() => setShowReasonPicker(!showReasonPicker)}
+              onPress={() => {
+                setShowReasonPicker(!showReasonPicker);
+                setShowItemPicker(false); // Zamknij drugi picker
+              }}
               style={{
                 paddingHorizontal: 12,
                 paddingVertical: 12,
@@ -372,49 +396,60 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
               />
             </TouchableOpacity>
 
-            {/* Reason Picker Dropdown */}
+            {/* Reason Picker Dropdown - Z-Index i Position Absolute */}
             {showReasonPicker && (
               <View
                 style={{
-                  marginTop: 8,
+                  position: 'absolute',
+                  top: 75,
+                  left: 0,
+                  right: 0,
                   backgroundColor: COLORS.surface,
                   borderRadius: RADIUS.md,
                   borderWidth: 1,
                   borderColor: COLORS.border,
+                  zIndex: 1001,
+                  elevation: 5,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
                 }}
               >
-                {WASTE_REASONS.map((r) => (
-                  <TouchableOpacity
-                    key={r}
-                    onPress={() => {
-                      setReason(r);
-                      setShowReasonPicker(false);
-                    }}
-                    style={{
-                      paddingHorizontal: 12,
-                      paddingVertical: 12,
-                      borderBottomWidth: 1,
-                      borderBottomColor: COLORS.border,
-                      backgroundColor: reason === r ? COLORS.primaryLight : 'transparent',
-                    }}
-                  >
-                    <Text
+                <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
+                  {WASTE_REASONS.map((r) => (
+                    <TouchableOpacity
+                      key={r}
+                      onPress={() => {
+                        setReason(r);
+                        setShowReasonPicker(false);
+                      }}
                       style={{
-                        fontSize: 14,
-                        color: reason === r ? COLORS.primary : COLORS.text,
-                        fontWeight: reason === r ? '600' : '400',
+                        paddingHorizontal: 12,
+                        paddingVertical: 12,
+                        borderBottomWidth: 1,
+                        borderBottomColor: COLORS.border,
+                        backgroundColor: reason === r ? COLORS.primaryLight : 'transparent',
                       }}
                     >
-                      {r}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: reason === r ? COLORS.primary : COLORS.text,
+                          fontWeight: reason === r ? '600' : '400',
+                        }}
+                      >
+                        {r}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             )}
           </View>
 
           {/* Waste Value Display */}
-          {selectedItem && quantity && (
+          {selectedItem && quantity ? (
             <View
               style={{
                 marginBottom: 20,
@@ -424,6 +459,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 borderRadius: RADIUS.md,
                 borderWidth: 1,
                 borderColor: '#FFE69C',
+                zIndex: 1,
               }}
             >
               <Text style={{ fontSize: 12, color: '#856404', fontWeight: '500' }}>
@@ -440,7 +476,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 {formatPrice(wasteValue)}
               </Text>
             </View>
-          )}
+          ) : null}
 
           {/* Submit Button */}
           <TouchableOpacity
@@ -451,6 +487,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
               backgroundColor: !selectedItem || !quantity ? COLORS.border : COLORS.primary,
               borderRadius: RADIUS.md,
               alignItems: 'center',
+              zIndex: 1,
               ...SHADOW.md,
             }}
           >
@@ -473,6 +510,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
               borderRadius: RADIUS.md,
               borderWidth: 1,
               borderColor: COLORS.border,
+              zIndex: 1,
             }}
           >
             <Text style={{ fontSize: 12, color: COLORS.textSecondary, lineHeight: 18 }}>
