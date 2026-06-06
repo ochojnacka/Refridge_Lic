@@ -1,10 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { WasteLog, WasteReason } from '../types/domain';
 
-// 🔧 IMPORTANT: Change this to your laptop IP for mobile/simulator testing
-// Use: ipconfig (Windows) to find your IPv4 address
-// Example: http://192.168.1.13:3000
-const API_BASE_URL = 'http://192.168.0.249:3000';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

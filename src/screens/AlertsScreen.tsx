@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { API_BASE_URL } from '../api/client';
 import { io } from 'socket.io-client';
 import { Bell, AlertTriangle, CheckCircle, Info, Trash2 } from 'lucide-react-native';
 
 import { AppHeader } from '../components/AppHeader';
 import { RootStackParamList } from '../navigation/types';
 
-const SOCKET_URL = 'http://192.168.0.249:3000';
+const socket = io(API_BASE_URL);
 
 interface AlertItem {
   id: string;
@@ -24,8 +25,6 @@ export function AlertsScreen({ navigation }: Props) {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const socket = io(SOCKET_URL);
-
     socket.on('waste:logged', (data) => {
       const newAlert: AlertItem = {
         id: Date.now().toString(),

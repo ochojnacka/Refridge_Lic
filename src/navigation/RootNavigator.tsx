@@ -97,9 +97,7 @@ export function RootNavigator() {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        // ZAKOMENTOWANE NA CZAS DEVELOPMENTU: 
-        // Zapobiega to konieczności ciągłego logowania się po każdym przeładowaniu (Fast Refresh)
-        // await apiClient.clearToken(); 
+        await apiClient.clearToken(); 
 
         await apiClient.loadToken();
         const hasToken = (apiClient as any).token !== null;

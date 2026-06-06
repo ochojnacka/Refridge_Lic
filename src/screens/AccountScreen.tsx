@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
-import { LogOut, User, Building2, ShieldCheck } from 'lucide-react-native';
-import { apiClient } from '../api/client';
+import { LogOut, User, Building2, ShieldCheck, AlertCircle } from 'lucide-react-native';
 import { AppHeader } from '../components/AppHeader';
+import { useAccount } from '../hooks/useAccount';
 
 interface AccountScreenProps {
   navigation: any;
@@ -10,48 +10,13 @@ interface AccountScreenProps {
 }
 
 export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadUserInfo();
-  }, []);
-
-  const loadUserInfo = async () => {
-    try {
-      setLoading(true);
-      const token = (apiClient as any).token;
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      // Decode JWT to get user info (payload is the 2nd part)
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        // Dekodowanie Base64 bez użycia Buffer
-        // Base64Url (używane w JWT) wymaga zamiany znaków URL-safe
-        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-        
-        // atob jest standardową funkcją w nowoczesnym React Native
-        const decoded = JSON.parse(atob(base64));
-        setUserInfo(decoded);
-      }
-    } catch (error) {
-      console.error('Error loading user info:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Cała logika sesji przeniesiona do hooka
+  const { userInfo, loading, error, logout, retry } = useAccount();
 
   const handleLogout = async () => {
-    try {
-      await apiClient.clearToken();
-      onLogout?.();
-      navigation.replace('Login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    await logout();
+    onLogout?.();
+    navigation.replace('Login');
   };
 
   if (loading) {
@@ -64,11 +29,24 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
 
   return (
     <View style={styles.container}>
-      {/* Korzystamy z naszego nowego, biznesowego Headera */}
       <AppHeader title="Workspace Account" showNotifications={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
+        {/* Graceful Degradation - Error Handling */}
+        {error && (
+          <View style={styles.errorAlert}>
+            <AlertCircle size={20} color="#c92a2a" />
+            <Text style={styles.errorAlertText}>{error}</Text>
+            <TouchableOpacity 
+              onPress={() => retry()}
+              style={{ backgroundColor: '#c92a2a', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
+            >
+              <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Karta Informacji o Użytkowniku */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -280,5 +258,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '700',
+  },
+  errorAlert: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff5f5',
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#fa5252',
+  },
+  errorAlertText: {
+    marginLeft: 10,
+    color: '#c92a2a',
+    fontWeight: '600',
+    fontSize: 14,
+    flex: 1,
   },
 });

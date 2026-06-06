@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, TextInput, TouchableOpacity, Text, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { apiClient } from '../api/client';
-import { ShieldAlert, TrendingDown } from 'lucide-react-native';
+import { useLogin } from '../hooks/useLogin';
 
 interface LoginScreenProps {
   navigation: any;
@@ -9,31 +8,15 @@ interface LoginScreenProps {
 }
 
 export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
-  const [email, setEmail] = useState('manager@bistro.pl');
-  const [password, setPassword] = useState('demo123');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Wyciągamy stany i funkcje z naszego custom hooka
+  const { email, setEmail, password, setPassword, loading, error, login } = useLogin();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError('System requires both email and password.');
-      return;
+    const success = await login();
+    if (success) {
+      onLoginSuccess?.();
+      navigation.replace('Tabs'); // Wykonujemy nawigację tylko przy sukcesie
     }
-
-    setLoading(true);
-    setError(null);
-
-    const response = await apiClient.login(email, password);
-
-    if (response.error) {
-      setError(response.error);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(false);
-    onLoginSuccess?.();
-    navigation.replace('Tabs');
   };
 
   const handleRegister = () => {

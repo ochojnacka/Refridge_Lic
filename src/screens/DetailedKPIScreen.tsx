@@ -1,53 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { TrendingUp, PieChart, Package, DollarSign, AlertTriangle } from 'lucide-react-native';
-import { apiClient } from '../api/client';
+
 import { AppHeader } from '../components/AppHeader';
 import { formatPrice } from '../utils/formatting';
-
-type TabType = 'waste' | 'revenue' | 'inventory' | 'roi';
-type RangeType = '7days' | '30days' | 'all';
+import { useDetailedKPI, RangeType } from '../hooks/useDetailedKPI';
 
 export function DetailedKPIScreen({ navigation }: any) {
-  const [activeTab, setActiveTab] = useState<TabType>('waste');
-  const [range, setRange] = useState<RangeType>('30days');
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  // Data states
-  const [wasteData, setWasteData] = useState<any>(null);
-  const [profitData, setProfitData] = useState<any>(null);
-  const [inventoryData, setInventoryData] = useState<any>(null);
-  const [roiData, setRoiData] = useState<any>(null);
-
-  const loadData = async (showRefresh = false) => {
-    try {
-      if (showRefresh) setRefreshing(true);
-      else setLoading(true);
-
-      const [wasteRes, profitRes, invRes, roiRes] = await Promise.all([
-        apiClient.getWasteReport(range),
-        apiClient.getProfitabilityReport(range),
-        apiClient.getInventoryHealth(),
-        apiClient.getInvestmentAppraisal()
-      ]);
-
-      if (wasteRes.data) setWasteData(wasteRes.data);
-      if (profitRes.data) setProfitData(profitRes.data);
-      if (invRes.data) setInventoryData(invRes.data);
-      if (roiRes.data) setRoiData(roiRes.data);
-
-    } catch (error) {
-      console.error('Failed to load KPI data', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [range]);
+  // Wykorzystanie custom hooka
+  const {
+    activeTab, setActiveTab,
+    range, setRange,
+    loading, refreshing, error,
+    wasteData, profitData, inventoryData, roiData,
+    loadData
+  } = useDetailedKPI();
 
   const renderRangeSelector = () => (
     <View style={styles.rangeSelector}>
@@ -254,6 +221,19 @@ export function DetailedKPIScreen({ navigation }: any) {
         contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadData(true)} />}
       >
+        {/* Graceful Degradation: Obsługa błędu */}
+        {error && (
+          <View style={{ marginHorizontal: 20, marginTop: 20, backgroundColor: '#fff5f5', padding: 12, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: '#fa5252', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ color: '#c92a2a', fontSize: 13, flex: 1 }}>{error}</Text>
+            <TouchableOpacity 
+              onPress={() => loadData()}
+              style={{ backgroundColor: '#fa5252', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
+            >
+              <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {loading && !refreshing ? (
           <ActivityIndicator size="large" color="#2ecc71" style={{ marginTop: 40 }} />
         ) : (
@@ -270,221 +250,44 @@ export function DetailedKPIScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  headerArea: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  headerSub: {
-    fontSize: 15,
-    color: '#868e96',
-    fontWeight: '500',
-  },
-  rangeSelector: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    gap: 10,
-  },
-  rangeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-  rangeButtonActive: {
-    backgroundColor: '#2ecc71',
-    borderColor: '#2ecc71',
-  },
-  rangeText: {
-    fontSize: 13,
-    color: '#495057',
-    fontWeight: '600',
-  },
-  rangeTextActive: {
-    color: 'white',
-  },
-  tabsWrapper: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-    marginBottom: 8,
-  },
-  tabsContainer: {
-    height: 50,
-  },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    marginRight: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-    gap: 8,
-  },
-  tabActive: {
-    borderBottomColor: '#2ecc71',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#868e96',
-  },
-  tabTextActive: {
-    color: '#212529',
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  tabContent: {
-    padding: 20,
-  },
-  summaryCard: {
-    backgroundColor: '#ffffff',
-    padding: 24,
-    borderRadius: 16,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  cardLabel: {
-    fontSize: 13,
-    color: '#868e96',
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  cardValueMain: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#212529',
-    marginVertical: 10,
-    letterSpacing: -1,
-  },
-  cardSubText: {
-    fontSize: 14,
-    color: '#495057',
-    fontWeight: '500',
-  },
-  dataCard: {
-    backgroundColor: '#ffffff',
-    padding: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  dataCardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#212529',
-    marginBottom: 20,
-  },
-  barChartContainer: {
-    gap: 16,
-  },
-  barChartLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  barLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#495057',
-  },
-  barValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#212529',
-  },
-  barTrack: {
-    height: 8,
-    backgroundColor: '#f1f3f5',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  barFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  comparisonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-    height: 180,
-    paddingTop: 20,
-  },
-  comparisonColumn: {
-    alignItems: 'center',
-    width: 80,
-  },
-  comparisonBar: {
-    width: 40,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
-    marginBottom: 12,
-  },
-  comparisonValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#212529',
-    marginBottom: 4,
-  },
-  comparisonLabel: {
-    fontSize: 11,
-    color: '#868e96',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  parameterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f3f5',
-  },
-  parameterLabel: {
-    fontSize: 14,
-    color: '#495057',
-    fontWeight: '500',
-  },
-  parameterValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#212529',
-  },
-  alertCard: {
-    backgroundColor: '#fff5f5',
-    padding: 20,
-    borderRadius: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#fa5252',
-  },
-  alertHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  alertTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#c92a2a',
-  },
-  alertText: {
-    fontSize: 14,
-    color: '#e03131',
-    lineHeight: 20,
-  },
+  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  headerArea: { paddingHorizontal: 20, paddingVertical: 12 },
+  headerSub: { fontSize: 15, color: '#868e96', fontWeight: '500' },
+  rangeSelector: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 16, gap: 10 },
+  rangeButton: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e9ecef' },
+  rangeButtonActive: { backgroundColor: '#2ecc71', borderColor: '#2ecc71' },
+  rangeText: { fontSize: 13, color: '#495057', fontWeight: '600' },
+  rangeTextActive: { color: 'white' },
+  tabsWrapper: { backgroundColor: '#ffffff', borderBottomWidth: 1, borderBottomColor: '#e9ecef', marginBottom: 8 },
+  tabsContainer: { height: 50 },
+  tab: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginRight: 16, borderBottomWidth: 2, borderBottomColor: 'transparent', gap: 8 },
+  tabActive: { borderBottomColor: '#2ecc71' },
+  tabText: { fontSize: 14, fontWeight: '600', color: '#868e96' },
+  tabTextActive: { color: '#212529' },
+  scrollContainer: { flex: 1 },
+  tabContent: { padding: 20 },
+  summaryCard: { backgroundColor: '#ffffff', padding: 24, borderRadius: 16, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  cardLabel: { fontSize: 13, color: '#868e96', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  cardValueMain: { fontSize: 36, fontWeight: '800', color: '#212529', marginVertical: 10, letterSpacing: -1 },
+  cardSubText: { fontSize: 14, color: '#495057', fontWeight: '500' },
+  dataCard: { backgroundColor: '#ffffff', padding: 24, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  dataCardTitle: { fontSize: 16, fontWeight: '700', color: '#212529', marginBottom: 20 },
+  barChartContainer: { gap: 16 },
+  barChartLabelRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  barLabel: { fontSize: 13, fontWeight: '600', color: '#495057' },
+  barValue: { fontSize: 13, fontWeight: '700', color: '#212529' },
+  barTrack: { height: 8, backgroundColor: '#f1f3f5', borderRadius: 4, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 4 },
+  comparisonContainer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end', height: 180, paddingTop: 20 },
+  comparisonColumn: { alignItems: 'center', width: 80 },
+  comparisonBar: { width: 40, borderTopLeftRadius: 6, borderTopRightRadius: 6, marginBottom: 12 },
+  comparisonValue: { fontSize: 13, fontWeight: '700', color: '#212529', marginBottom: 4 },
+  comparisonLabel: { fontSize: 11, color: '#868e96', fontWeight: '600', textTransform: 'uppercase' },
+  parameterRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f1f3f5' },
+  parameterLabel: { fontSize: 14, color: '#495057', fontWeight: '500' },
+  parameterValue: { fontSize: 14, fontWeight: '700', color: '#212529' },
+  alertCard: { backgroundColor: '#fff5f5', padding: 20, borderRadius: 16, borderLeftWidth: 4, borderLeftColor: '#fa5252' },
+  alertHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  alertTitle: { fontSize: 15, fontWeight: '700', color: '#c92a2a' },
+  alertText: { fontSize: 14, color: '#e03131', lineHeight: 20 },
 });
