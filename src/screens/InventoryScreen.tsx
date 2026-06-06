@@ -11,8 +11,8 @@ interface InventoryScreenProps {
   navigation: any;
 }
 
-const UNITS = ['kg', 'g', 'l', 'ml', 'pcs', 'box', 'bundle'];
-const CATEGORIES = ['VEGETABLES', 'MEAT', 'DAIRY', 'SPICES', 'PANTRY', 'FROZEN', 'BEVERAGES', 'OTHER'];
+const UNITS = ['kg', 'g', 'l', 'ml', 'szt.', 'op.', 'zest.'];
+const CATEGORIES = ['Warzywa', 'Mięso', 'Nabiał', 'Przyprawy', 'Spiżarnia', 'Mrożone', 'Napoje', 'Inne'];
 
 export function InventoryScreen({ navigation }: InventoryScreenProps) {
   // Wyciągamy potrzebne dane i funkcje z hooka
@@ -27,7 +27,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
     quantity: '',
     unit: 'kg',
     costPrice: '',
-    category: 'VEGETABLES',
+    category: 'Warzywa',
   });
 
   useFocusEffect(
@@ -38,7 +38,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
 
   const handleAddItem = async () => {
     if (!newItem.name || !newItem.quantity || !newItem.costPrice) {
-      setError('Please fill all fields');
+      setError('Wypełnij wszystkie wymagane pola (nazwa, ilość, cena)');
       return;
     }
 
@@ -52,7 +52,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
 
     if (success) {
       setModalVisible(false);
-      setNewItem({ name: '', quantity: '', unit: 'kg', costPrice: '', category: 'VEGETABLES' });
+      setNewItem({ name: '', quantity: '', unit: 'kg', costPrice: '', category: 'Warzywa' });
     }
   };
 
@@ -74,8 +74,8 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
           <View style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <View>
-                <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>📦 Inventory</Text>
-                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{items.length} items tracked</Text>
+                <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>📦 Magazyn</Text>
+                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{items.length} produktów śledzonych</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <TouchableOpacity
@@ -88,7 +88,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                     alignItems: 'center',
                   }}
                 >
-                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>🗑️ Log Waste</Text>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>🗑️ Odpady</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setModalVisible(true)}
@@ -101,7 +101,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                   }}
                 >
                   <Plus size={20} color="white" />
-                  <Text style={{ color: 'white', marginLeft: 6, fontWeight: '600' }}>Add</Text>
+                  <Text style={{ color: 'white', marginLeft: 6, fontWeight: '600' }}>Dodaj produkt</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -114,14 +114,14 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                   onPress={() => fetchInventory()}
                   style={{ backgroundColor: '#c00', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
                 >
-                  <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+                  <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Ponów</Text>
                 </TouchableOpacity>
               </View>
             )}
 
             {items.length === 0 && !error ? (
               <View style={{ alignItems: 'center', paddingTop: 40 }}>
-                <Text style={{ fontSize: 16, color: '#999' }}>No inventory items</Text>
+                <Text style={{ fontSize: 16, color: '#999' }}>Brak produktów w zapasach</Text>
               </View>
             ) : (
               <>
@@ -142,19 +142,19 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                         <Text style={{ fontSize: 14, fontWeight: '600', color: '#333' }}>{item.name}</Text>
                         <View style={{ flexDirection: 'row', marginTop: 8, gap: 16 }}>
                           <View>
-                            <Text style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Quantity</Text>
+                            <Text style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Ilość</Text>
                             <Text style={{ fontSize: 13, fontWeight: '600', color: '#2ecc71' }}>
                               {formatQty(item.quantity)} {item.unit}
                             </Text>
                           </View>
                           <View>
-                            <Text style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Cost Price</Text>
+                            <Text style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Cena zakupu</Text>
                             <Text style={{ fontSize: 13, fontWeight: '600', color: '#3498db' }}>
                               {formatPrice(item.costPrice)} PLN/{item.unit}
                             </Text>
                           </View>
                           <View>
-                            <Text style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Category</Text>
+                            <Text style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>Kategoria</Text>
                             <Text style={{ fontSize: 12, color: '#666' }}>{item.category}</Text>
                           </View>
                         </View>
@@ -178,11 +178,11 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
             <View style={{ backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 20, color: '#333' }}>Add Inventory Item</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 20, color: '#333' }}>Dodaj pozycję do zapasów</Text>
 
                 {/* Item Name */}
                 <View style={{ marginBottom: 16 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Item Name *</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Nazwa *</Text>
                   <TextInput
                     placeholder="e.g., Tomatoes, Chicken Breast"
                     value={newItem.name}
@@ -200,7 +200,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                 {/* Quantity & Unit Row */}
                 <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Quantity *</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Ilość *</Text>
                     <TextInput
                       placeholder="100"
                       value={newItem.quantity}
@@ -216,7 +216,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                     />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Unit *</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Jednostka *</Text>
                     <TouchableOpacity
                       onPress={() => setShowUnitPicker(!showUnitPicker)}
                       style={{
@@ -261,7 +261,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
 
                 {/* Cost Price */}
                 <View style={{ marginBottom: 16 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Cost Price per {newItem.unit} (PLN) *</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Cena zakupu za {newItem.unit} (PLN) *</Text>
                   <TextInput
                     placeholder="15.50"
                     value={newItem.costPrice}
@@ -275,12 +275,12 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                       fontSize: 14,
                     }}
                   />
-                  <Text style={{ fontSize: 11, color: '#999', marginTop: 4 }}>💡 This is the cost per {newItem.unit} (e.g., 5 PLN/kg)</Text>
+                  <Text style={{ fontSize: 11, color: '#999', marginTop: 4 }}>💡 To jest cena zakupu za {newItem.unit} (np., 5 PLN/kg)</Text>
                 </View>
 
                 {/* Category */}
                 <View style={{ marginBottom: 16 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Category *</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 6, color: '#666' }}>Kategoria *</Text>
                   <TouchableOpacity
                     onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                     style={{
@@ -339,7 +339,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                       alignItems: 'center',
                     }}
                   >
-                    <Text style={{ color: '#333', fontWeight: '600' }}>Cancel</Text>
+                    <Text style={{ color: '#333', fontWeight: '600' }}>Anuluj</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -352,7 +352,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                       alignItems: 'center',
                     }}
                   >
-                    <Text style={{ color: 'white', fontWeight: '600' }}>Add Item</Text>
+                    <Text style={{ color: 'white', fontWeight: '600' }}>Dodaj pozycję</Text>
                   </TouchableOpacity>
                 </View>
               </ScrollView>

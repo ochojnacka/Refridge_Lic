@@ -52,7 +52,7 @@ export class MenuSuggestionService {
           totalScore += 0; // Low stock
         }
       } catch (err) {
-        console.error('Error checking inventory item:', err);
+        console.error('Błąd sprawdzania stanu magazynowego:', err);
       }
 
       itemsCount++;
@@ -85,7 +85,7 @@ export class MenuSuggestionService {
           expiringCount++;
         }
       } catch (err) {
-        console.error('Error checking expiry date:', err);
+        console.error('Błąd sprawdzania daty ważności:', err);
       }
     }
 
@@ -142,7 +142,7 @@ export class MenuSuggestionService {
     score += inventoryScore / 3;
 
     if (inventoryScore > 20) {
-      reasons.push('✅ Full stock available');
+      reasons.push('✅ Dużo produktów na stanie');
     }
 
     // Expiring item bonus (0-20)
@@ -150,20 +150,20 @@ export class MenuSuggestionService {
     score += expiringBonus / 2;
 
     if (expiringBonus > 10) {
-      reasons.push('⏰ Items expiring soon - use now!');
+      reasons.push('⏰ Zbliża się koniec daty ważności produktów!');
     }
 
     // Margin score (0-20)
     const marginScore = this.getMarginScore(recipe);
     score += marginScore / 2;
-    reasons.push(`💰 Margin: ${recipe.getMargin().toFixed(1)}%`);
+    reasons.push(`💰 Marża: ${recipe.getMargin().toFixed(1)}%`);
 
     // Demand score (0-30)
     const demandScore = await this.getDemandScore(recipe, restaurantId);
     score += demandScore / 3;
 
     if (demandScore > 15) {
-      reasons.push('📈 High demand - popular choice');
+      reasons.push('📈 Wysoki popyt - popularny wybór');
     }
 
     // Clamp score to 0-100
@@ -203,7 +203,7 @@ export class MenuSuggestionService {
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
     } catch (error) {
-      console.error('Error suggesting menu:', error);
+      console.error('Błąd sugerowania menu:', error);
       throw error;
     }
   }

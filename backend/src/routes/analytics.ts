@@ -16,54 +16,54 @@ const parseRange = (range: any): number => {
 
 router.get('/waste-report', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const rangeDays = parseRange(req.query.range);
     const report = await analyticsService.getWasteReport(req.user.restaurantId, rangeDays);
     res.json(report);
   } catch (error) {
-    console.error('Error fetching waste report:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd pobierania raportu odpadów:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
 router.get('/profitability', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const rangeDays = parseRange(req.query.range);
     const report = await analyticsService.getProfitabilityReport(req.user.restaurantId, rangeDays);
     res.json(report);
   } catch (error) {
-    console.error('Error fetching profitability report:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd pobierania raportu rentowności:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
 router.get('/inventory-health', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const report = await analyticsService.getInventoryHealth(req.user.restaurantId);
     res.json(report);
   } catch (error) {
-    console.error('Error fetching inventory health:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd pobierania statusu zapasów:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
 router.get('/investment-appraisal', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const appraisal = await analyticsService.getInvestmentAppraisal(req.user.restaurantId);
     res.json(appraisal);
   } catch (error) {
-    console.error('Error fetching investment appraisal:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd pobierania oszacowania inwestycji:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
 // GET /analytics/suggestions - Menu suggestions for today
 router.get('/suggestions', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
     const suggestions = await menuService.suggestMenuForToday(req.user.restaurantId, limit);
     
@@ -71,8 +71,8 @@ router.get('/suggestions', authenticateToken, async (req: AuthRequest, res: Resp
     
     res.json({ date: new Date().toISOString().split('T')[0], suggestions, count: suggestions.length });
   } catch (error) {
-    console.error('Error generating menu suggestions:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd generowania propozycji menu:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 

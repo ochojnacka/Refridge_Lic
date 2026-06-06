@@ -31,10 +31,10 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
         <View style={{ padding: 16 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>🎯 Menu Suggestions</Text>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>🎯 Sugestie Menu</Text>
               <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Date: {date}</Text>
               <Text style={{ fontSize: 12, color: '#666', marginTop: 6 }}>
-                AI-optimized recipes based on inventory, demand, and profitability
+                Propozycje dań oparte na Twoim aktualnym stanie magazynowym, trendach rynkowych i marżach. Odśwież, aby zobaczyć najnowsze sugestie!
               </Text>
             </View>
             <TouchableOpacity
@@ -49,7 +49,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
               }}
             >
               <Plus size={18} color="white" />
-              <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>Recipe</Text>
+              <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>Przepis</Text>
             </TouchableOpacity>
           </View>
 
@@ -63,14 +63,14 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
                 onPress={() => fetchSuggestions()}
                 style={{ backgroundColor: '#fa5252', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6 }}
               >
-                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Ponów</Text>
               </TouchableOpacity>
             </View>
           )}
 
           {suggestions.length === 0 && !error ? (
             <View style={{ alignItems: 'center', paddingTop: 40 }}>
-              <Text style={{ fontSize: 16, color: '#999' }}>No suggestions available</Text>
+              <Text style={{ fontSize: 16, color: '#999' }}>Brak dostępnych sugestii</Text>
             </View>
           ) : (
             <>
@@ -95,7 +95,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
                               {formatPercent(suggestion.score)}/100
                             </Text>
                           </View>
-                          <Text style={{ fontSize: 12, color: '#666' }}>Score</Text>
+                          <Text style={{ fontSize: 12, color: '#666' }}>Wynik</Text>
                         </View>
                       </View>
                     </View>
@@ -104,7 +104,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
                     <View style={{ backgroundColor: 'rgba(46, 204, 113, 0.05)', padding: 12, borderRadius: 8, marginBottom: 12 }}>
                       <View style={{ marginBottom: 8 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <Text style={{ fontSize: 12, color: '#666' }}>Inventory</Text>
+                          <Text style={{ fontSize: 12, color: '#666' }}>Magazyn</Text>
                           <Text style={{ fontSize: 12, fontWeight: '600', color: '#27ae60' }}>
                             {suggestion.inventoryScore?.toFixed(0) || 0} pts
                           </Text>
@@ -122,7 +122,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
 
                       <View style={{ marginBottom: 8 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <Text style={{ fontSize: 12, color: '#666' }}>Demand</Text>
+                          <Text style={{ fontSize: 12, color: '#666' }}>Popyt</Text>
                           <Text style={{ fontSize: 12, fontWeight: '600', color: '#2ecc71' }}>
                             {suggestion.demandScore?.toFixed(0) || 0} pts
                           </Text>
@@ -140,7 +140,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
 
                       <View style={{ marginBottom: 8 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <Text style={{ fontSize: 12, color: '#666' }}>Margin</Text>
+                          <Text style={{ fontSize: 12, color: '#666' }}>Marża</Text>
                           <Text style={{ fontSize: 12, fontWeight: '600', color: '#3498db' }}>
                             {suggestion.marginScore?.toFixed(0) || 0} pts
                           </Text>
@@ -160,15 +160,15 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
                     {/* Details */}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                       <View>
-                        <Text style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Est. Profit</Text>
+                        <Text style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Szacowany zysk</Text>
                         <Text style={{ fontSize: 16, fontWeight: '700', color: '#2ecc71' }}>
                           {formatPrice(suggestion.estimatedProfit || 0)} PLN
                         </Text>
                       </View>
                       <View>
-                        <Text style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Recommended</Text>
+                        <Text style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Polecane</Text>
                         <Text style={{ fontSize: 16, fontWeight: '700', color: '#3498db' }}>
-                          {formatInteger(suggestion.recommendedQuantity || 10)} portions
+                          {formatInteger(suggestion.recommendedQuantity || 10)} porcji
                         </Text>
                       </View>
                     </View>
@@ -176,7 +176,7 @@ export function MenuSuggestionsScreen({ navigation }: MenuSuggestionsScreenProps
                     {/* Reasons */}
                     {suggestion.reasons && suggestion.reasons.length > 0 && (
                       <View>
-                        <Text style={{ fontSize: 12, color: '#666', marginBottom: 6, fontWeight: '600' }}>Why this recipe?</Text>
+                        <Text style={{ fontSize: 12, color: '#666', marginBottom: 6, fontWeight: '600' }}>Dlaczego to danie?</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                           {suggestion.reasons.map((reason: string, i: number) => (
                             <View key={i} style={{ backgroundColor: '#e8f8f5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>

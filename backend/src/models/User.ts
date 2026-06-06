@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { Restaurant } from './Restaurant';
 
 export enum UserRole {
-  MANAGER = 'manager',
-  CHEF = 'chef',
-  ADMIN = 'admin',
+  MANAGER = 'Menedżer',
+  CHEF = 'Szef kuchni',
+  ADMIN = 'Administrator',
 }
 
 @Entity('users')
@@ -30,7 +30,7 @@ export class User {
   @Column('varchar', { length: 50 })
   name: string = '';
 
-  @Column('varchar', { length: 50, default: 'manager' })
+  @Column('varchar', { length: 50, default: 'Menedżer' })
   role: UserRole = UserRole.MANAGER;
 
   @Column('boolean', { default: true })

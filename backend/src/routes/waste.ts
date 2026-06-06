@@ -13,13 +13,13 @@ const inventoryRepository = AppDataSource.getRepository(InventoryItem);
 router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { itemId, quantity, reason, unit } = req.body;
 
     if (!itemId || quantity === undefined || quantity <= 0) {
-      return res.status(400).json({ error: 'Invalid or missing fields' });
+      return res.status(400).json({ error: 'Nieprawidłowe lub brakujące pola' });
     }
 
     let savedWasteLog: WasteLog;
@@ -32,12 +32,12 @@ router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) =
       });
 
       if (!item) {
-        throw new Error('Inventory item not found');
+        throw new Error('Produkt nie znaleziony');
       }
 
       // 2. Walidacja stanu (nie pozwalamy na ujemny stan)
       if (item.quantity < quantity) {
-        throw new Error(`Insufficient stock. Available: ${item.quantity} ${item.unit}`);
+        throw new Error(`Brak wystarczającego stanu magazynowego. Dostępne: ${item.quantity} ${item.unit}`);
       }
 
       // 3. Oblicz wartość straty
@@ -69,10 +69,10 @@ router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) =
 
     res.status(201).json(savedWasteLog!);
   } catch (error: any) {
-    console.error('Error logging waste:', error);
+    console.error('Błąd logowania odpadów:', error);
     // Zwróć błąd (jeśli błąd pochodzi z naszej walidacji, przekaż go dalej)
-    const status = error.message.includes('not found') || error.message.includes('Insufficient') ? 400 : 500;
-    res.status(status).json({ error: error.message || 'Internal server error' });
+    const status = error.message.includes('nie znaleziony') || error.message.includes('Brak wystarczającego stanu magazynowego') ? 400 : 500;
+    res.status(status).json({ error: error.message || 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -80,7 +80,7 @@ router.post('/log', authenticateToken, async (req: AuthRequest, res: Response) =
 router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { dateFrom, dateTo } = req.query;
@@ -100,8 +100,8 @@ router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response) =
 
     res.json(logs);
   } catch (error) {
-    console.error('Error fetching waste logs:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd pobierania logów odpadów:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -109,7 +109,7 @@ router.get('/logs', authenticateToken, async (req: AuthRequest, res: Response) =
 router.delete('/logs/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { id } = req.params;
@@ -119,15 +119,15 @@ router.delete('/logs/:id', authenticateToken, async (req: AuthRequest, res: Resp
     });
 
     if (!log) {
-      return res.status(404).json({ error: 'Waste log not found' });
+      return res.status(404).json({ error: 'Log odpadów nie znaleziony' });
     }
 
     await wasteLogRepository.remove(log);
 
-    res.json({ success: true, message: 'Waste log deleted' });
+    res.json({ success: true, message: 'Log odpadów usunięty' });
   } catch (error) {
-    console.error('Error deleting waste log:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd usuwania logu odpadów:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 

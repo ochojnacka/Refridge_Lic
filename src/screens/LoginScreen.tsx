@@ -33,14 +33,14 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
             Refridge B2B
           </Text>
           <Text style={{ fontSize: 16, color: '#495057', fontWeight: '500', textAlign: 'center' }}>
-            Restaurant Intelligence & Waste Control
+            Rozwiązanie do zarządzania zapasami i przepisami dla restauracji, pomagające redukować marnowanie żywności i optymalizować koszty.
           </Text>
         </View>
 
         <View style={{ backgroundColor: '#ffffff', padding: 24, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
           
           <Text style={{ fontSize: 20, fontWeight: '700', color: '#212529', marginBottom: 24 }}>
-            Staff Portal Login
+            Zaloguj się do panelu
           </Text>
 
           {error && (
@@ -51,12 +51,12 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
 
           <View style={{ marginBottom: 20 }}>
             <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 8, color: '#495057', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Corporate Email
+              E-mail firmowy
             </Text>
             <TextInput
               value={email}
               onChangeText={setEmail}
-              placeholder="e.g. manager@restaurant.com"
+              placeholder="np. menedżer@restaurant.com"
               placeholderTextColor="#adb5bd"
               style={{
                 borderWidth: 1.5,
@@ -76,7 +76,7 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
 
           <View style={{ marginBottom: 32 }}>
             <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 8, color: '#495057', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Password
+              Hasło
             </Text>
             <TextInput
               value={password}
@@ -111,7 +111,7 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
             {loading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>Access Dashboard</Text>
+              <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>Zaloguj się</Text>
             )}
           </TouchableOpacity>
 
@@ -125,18 +125,22 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
               backgroundColor: '#f8f9fa',
             }}
           >
-            <Text style={{ color: '#495057', fontSize: 14, fontWeight: '600' }}>Register New Restaurant</Text>
+            <Text style={{ color: '#495057', fontSize: 14, fontWeight: '600' }}>Zarejestruj restaurację</Text>
           </TouchableOpacity>
         </View>
 
         {/* Demo Credentials dla recenzentów pracy */}
         <View style={{ marginTop: 32, padding: 16, backgroundColor: 'rgba(46, 204, 113, 0.1)', borderRadius: 8, borderWidth: 1, borderColor: 'rgba(46, 204, 113, 0.2)' }}>
           <Text style={{ fontSize: 12, color: '#2b8a3e', marginBottom: 8, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            Thesis Evaluation / Demo Access:
+            Dostęp do Demo:
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>Role: Manager</Text>
-            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>manager@bistro.pl / demo123</Text>
+            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>Rola: Menedżer</Text>
+            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>menedżer@bistro.pl / demo123</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>Rola: Szef kuchni</Text>
+            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>szef@bistro.pl / demo123</Text>
           </View>
         </View>
 

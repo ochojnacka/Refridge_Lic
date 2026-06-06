@@ -60,7 +60,7 @@ export class AnalyticsService {
     // Waste by category
     const wasteByCategory: Record<string, number> = {};
     for (const log of logs) {
-      const category = log.item?.category || 'Other';
+      const category = log.item?.category || 'Inne';
       wasteByCategory[category] = (wasteByCategory[category] || 0) + (log.value || 0);
     }
 
@@ -69,10 +69,10 @@ export class AnalyticsService {
     for (const log of logs) {
       if (!byItem.has(log.itemId)) {
         byItem.set(log.itemId, {
-          itemName: log.item?.name || 'Unknown',
+          itemName: log.item?.name || 'Nieznany',
           quantity: 0,
           value: 0,
-          reason: log.reason || 'Expired',
+          reason: log.reason || 'Przeterminowany',
         });
       }
       const record = byItem.get(log.itemId)!;

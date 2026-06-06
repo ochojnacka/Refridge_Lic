@@ -25,7 +25,7 @@ export function DetailedKPIScreen({ navigation }: any) {
           onPress={() => setRange(r)}
         >
           <Text style={[styles.rangeText, range === r && styles.rangeTextActive]}>
-            {r === '7days' ? 'Last 7 Days' : r === '30days' ? 'Last 30 Days' : 'All Time'}
+            {r === '7days' ? 'Ostatnie 7 dni' : r === '30days' ? 'Ostatnie 30 dni' : 'Łącznie'}
           </Text>
         </TouchableOpacity>
       ))}
@@ -36,22 +36,22 @@ export function DetailedKPIScreen({ navigation }: any) {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer} contentContainerStyle={{ paddingHorizontal: 16 }}>
       <TouchableOpacity style={[styles.tab, activeTab === 'waste' && styles.tabActive]} onPress={() => setActiveTab('waste')}>
         <PieChart size={18} color={activeTab === 'waste' ? '#2ecc71' : '#868e96'} />
-        <Text style={[styles.tabText, activeTab === 'waste' && styles.tabTextActive]}>Waste</Text>
+        <Text style={[styles.tabText, activeTab === 'waste' && styles.tabTextActive]}>Straty żywności</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={[styles.tab, activeTab === 'revenue' && styles.tabActive]} onPress={() => setActiveTab('revenue')}>
         <TrendingUp size={18} color={activeTab === 'revenue' ? '#2ecc71' : '#868e96'} />
-        <Text style={[styles.tabText, activeTab === 'revenue' && styles.tabTextActive]}>Profitability</Text>
+        <Text style={[styles.tabText, activeTab === 'revenue' && styles.tabTextActive]}>Przychody</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={[styles.tab, activeTab === 'inventory' && styles.tabActive]} onPress={() => setActiveTab('inventory')}>
         <Package size={18} color={activeTab === 'inventory' ? '#2ecc71' : '#868e96'} />
-        <Text style={[styles.tabText, activeTab === 'inventory' && styles.tabTextActive]}>Inventory</Text>
+        <Text style={[styles.tabText, activeTab === 'inventory' && styles.tabTextActive]}>Inwentaryzacja</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={[styles.tab, activeTab === 'roi' && styles.tabActive]} onPress={() => setActiveTab('roi')}>
         <DollarSign size={18} color={activeTab === 'roi' ? '#2ecc71' : '#868e96'} />
-        <Text style={[styles.tabText, activeTab === 'roi' && styles.tabTextActive]}>Appraisal</Text>
+        <Text style={[styles.tabText, activeTab === 'roi' && styles.tabTextActive]}>Wartość</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -62,17 +62,17 @@ export function DetailedKPIScreen({ navigation }: any) {
     return (
       <View style={styles.tabContent}>
         <View style={styles.summaryCard}>
-          <Text style={styles.cardLabel}>Food Waste Ratio</Text>
+          <Text style={styles.cardLabel}>Stosunek marnowania żywności</Text>
           <Text style={[styles.cardValueMain, { color: '#fa5252' }]}>{wasteData.wastePercentage || 0}%</Text>
-          <Text style={styles.cardSubText}>Total financial loss: {formatPrice(wasteData.totalWaste || 0)} PLN</Text>
+          <Text style={styles.cardSubText}>Całkowite straty finansowe: {formatPrice(wasteData.totalWaste || 0)} PLN</Text>
         </View>
 
         {/* Visual Simulated Chart */}
         <View style={styles.dataCard}>
-          <Text style={styles.dataCardTitle}>Waste Composition</Text>
+          <Text style={styles.dataCardTitle}>Skład marnowania</Text>
           <View style={styles.barChartContainer}>
             <View style={styles.barChartLabelRow}>
-              <Text style={styles.barLabel}>Expired</Text>
+              <Text style={styles.barLabel}>Upływ terminu ważności</Text>
               <Text style={styles.barValue}>65%</Text>
             </View>
             <View style={styles.barTrack}>
@@ -80,7 +80,7 @@ export function DetailedKPIScreen({ navigation }: any) {
             </View>
 
             <View style={styles.barChartLabelRow}>
-              <Text style={styles.barLabel}>Damaged</Text>
+              <Text style={styles.barLabel}>Uszkodzony</Text>
               <Text style={styles.barValue}>25%</Text>
             </View>
             <View style={styles.barTrack}>
@@ -88,7 +88,7 @@ export function DetailedKPIScreen({ navigation }: any) {
             </View>
 
             <View style={styles.barChartLabelRow}>
-              <Text style={styles.barLabel}>Over-production</Text>
+              <Text style={styles.barLabel}>Nadprodukcja</Text>
               <Text style={styles.barValue}>10%</Text>
             </View>
             <View style={styles.barTrack}>
@@ -107,30 +107,30 @@ export function DetailedKPIScreen({ navigation }: any) {
     return (
       <View style={styles.tabContent}>
         <View style={styles.summaryCard}>
-          <Text style={styles.cardLabel}>Gross Profit Margin</Text>
+          <Text style={styles.cardLabel}>Margines zysku brutto</Text>
           <Text style={[styles.cardValueMain, { color: margin > 60 ? '#2ecc71' : '#f39c12' }]}>
             {margin}%
           </Text>
-          <Text style={styles.cardSubText}>Total Revenue: {formatPrice(profitData.totalRevenue || 0)} PLN</Text>
+          <Text style={styles.cardSubText}>Całkowity przychód: {formatPrice(profitData.totalRevenue || 0)} PLN</Text>
         </View>
 
         <View style={styles.dataCard}>
-          <Text style={styles.dataCardTitle}>Revenue vs Costs Breakdown</Text>
+          <Text style={styles.dataCardTitle}>Przychód vs Koszty - Podział</Text>
           <View style={styles.comparisonContainer}>
              <View style={styles.comparisonColumn}>
                 <View style={[styles.comparisonBar, { height: 120, backgroundColor: '#2ecc71' }]} />
                 <Text style={styles.comparisonValue}>{formatPrice(profitData.totalRevenue || 0)}</Text>
-                <Text style={styles.comparisonLabel}>Revenue</Text>
+                <Text style={styles.comparisonLabel}>Przychód</Text>
              </View>
              <View style={styles.comparisonColumn}>
                 <View style={[styles.comparisonBar, { height: 70, backgroundColor: '#fa5252' }]} />
                 <Text style={styles.comparisonValue}>{formatPrice((profitData.totalRevenue || 0) - (profitData.totalProfit || 0))}</Text>
-                <Text style={styles.comparisonLabel}>Food Cost</Text>
+                <Text style={styles.comparisonLabel}>Koszty żywności</Text>
              </View>
              <View style={styles.comparisonColumn}>
                 <View style={[styles.comparisonBar, { height: 50, backgroundColor: '#3498db' }]} />
                 <Text style={styles.comparisonValue}>{formatPrice(profitData.totalProfit || 0)}</Text>
-                <Text style={styles.comparisonLabel}>Gross Profit</Text>
+                <Text style={styles.comparisonLabel}>Zysk brutto</Text>
              </View>
           </View>
         </View>
@@ -143,19 +143,19 @@ export function DetailedKPIScreen({ navigation }: any) {
     return (
       <View style={styles.tabContent}>
         <View style={styles.summaryCard}>
-          <Text style={styles.cardLabel}>Inventory Valuation</Text>
+          <Text style={styles.cardLabel}>Wartość zapasów</Text>
           <Text style={[styles.cardValueMain, { color: '#3498db' }]}>{formatPrice(inventoryData.totalValue || 0)} PLN</Text>
-          <Text style={styles.cardSubText}>{inventoryData.totalItems || 0} unique SKUs in storage</Text>
+          <Text style={styles.cardSubText}>{inventoryData.totalItems || 0} unikalnych SKU w magazynie</Text>
         </View>
 
         {inventoryData.criticalLevels && inventoryData.criticalLevels.length > 0 && (
           <View style={styles.alertCard}>
             <View style={styles.alertHeader}>
               <AlertTriangle size={20} color="#e74c3c" />
-              <Text style={styles.alertTitle}>Critical Stock Levels</Text>
+              <Text style={styles.alertTitle}>Krytyczne poziomy zapasów</Text>
             </View>
             <Text style={styles.alertText}>
-              There are {inventoryData.criticalLevels.length} items below minimum optimal stock levels. Reordering is recommended to prevent menu stockouts.
+              Istnieją {inventoryData.criticalLevels.length} pozycje poniżej minimalnych optymalnych poziomów zapasów. Zamówienie jest zalecane, aby zapobiec brakom produktów w menu.
             </Text>
           </View>
         )}
@@ -168,34 +168,34 @@ export function DetailedKPIScreen({ navigation }: any) {
     return (
       <View style={styles.tabContent}>
         <View style={styles.summaryCard}>
-          <Text style={styles.cardLabel}>Projected 3-Year NPV</Text>
+          <Text style={styles.cardLabel}>Szacowany 3-letni NPV</Text>
           <Text style={[styles.cardValueMain, { color: '#2ecc71' }]}>
             {formatPrice(roiData.estimatedNPV3Years || 42500)} PLN
           </Text>
-          <Text style={styles.cardSubText}>Net Present Value of software implementation</Text>
+          <Text style={styles.cardSubText}>Obecny zysk netto z inwestycji</Text>
         </View>
 
         <View style={styles.dataCard}>
-          <Text style={styles.dataCardTitle}>Investment Parameters</Text>
+          <Text style={styles.dataCardTitle}>Parametry inwestycji</Text>
           
           <View style={styles.parameterRow}>
-            <Text style={styles.parameterLabel}>Monthly Net Benefit</Text>
+            <Text style={styles.parameterLabel}>Miesięczny zysk netto</Text>
             <Text style={styles.parameterValue}>{formatPrice(roiData.netBenefit || 1500)} PLN</Text>
           </View>
           
           <View style={styles.parameterRow}>
-            <Text style={styles.parameterLabel}>Applied Cost of Capital (WACC)</Text>
+            <Text style={styles.parameterLabel}>Średni ważony koszt kapitału (WACC)</Text>
             <Text style={styles.parameterValue}>10.31%</Text>
           </View>
 
           <View style={styles.parameterRow}>
-            <Text style={styles.parameterLabel}>Internal Rate of Return (IRR)</Text>
+            <Text style={styles.parameterLabel}>Wewnętrzna stopa zwrotu (IRR)</Text>
             <Text style={[styles.parameterValue, { color: '#2ecc71' }]}>{roiData.irr || '45.2'}%</Text>
           </View>
 
           <View style={[styles.parameterRow, { borderBottomWidth: 0, paddingBottom: 0 }]}>
-            <Text style={styles.parameterLabel}>Payback Period</Text>
-            <Text style={styles.parameterValue}>{roiData.paybackMonths || '8.5'} Months</Text>
+            <Text style={styles.parameterLabel}>Okres zwrotu</Text>
+            <Text style={styles.parameterValue}>{roiData.paybackMonths || '8.5'} miesięcy</Text>
           </View>
         </View>
       </View>
@@ -204,7 +204,7 @@ export function DetailedKPIScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <AppHeader title="Advanced Analytics" onBack={() => navigation.goBack()} />
+      <AppHeader title="Szczegółowe statystyki" onBack={() => navigation.goBack()} />
 
       <View style={styles.headerArea}>
         <Text style={styles.headerSub}>Case Study & KPI Dashboard</Text>

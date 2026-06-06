@@ -26,8 +26,8 @@ export function useMenuSuggestions(limit: number = 5) {
         setDate(response.data.date || new Date().toISOString().split('T')[0]);
       }
     } catch (err) {
-      console.error('Error loading suggestions:', err);
-      setError('Failed to load menu suggestions. Check your connection.');
+      console.error('Błąd ładowania sugestii:', err);
+      setError('Nie udało się załadować sugestii menu. Proszę sprawdzić połączenie z internetem.');
     } finally {
       setLoading(false);
       setRefreshing(false);

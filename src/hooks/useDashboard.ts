@@ -103,8 +103,8 @@ export function useDashboard() {
       
       animateCardsIn();
     } catch (err) {
-      console.error('Error loading analytics:', err);
-      setError('Failed to load analytics. Please check your connection.');
+      console.error('Błąd ładowania danych analitycznych:', err);
+      setError('Nie udało się załadować danych analitycznych. Proszę sprawdzić połączenie z internetem.');
     } finally {
       setLoading(false);
       setRefreshing(false);

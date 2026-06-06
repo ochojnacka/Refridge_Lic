@@ -18,11 +18,11 @@ export const AppDataSource = new DataSource({
 export const initializeDatabase = async () => {
   try {
     await AppDataSource.initialize();
-    console.log('✅ PostgreSQL Database connected successfully');
+    console.log('✅ Baza danych połączona i gotowa do działania!');
     console.log(`📊 Database: ${process.env.DATABASE_NAME} @ ${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}`);
     return AppDataSource;
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error('❌ Połączenie z bazą danych nie powiodło się:', error);
     process.exit(1);
   }
 };

@@ -4,18 +4,18 @@ import { v4 as uuidv4 } from 'uuid';
 import { Restaurant } from './Restaurant';
 
 export enum RecipeCategory {
-  MAIN = 'main',
-  SIDE = 'side',
-  DESSERT = 'dessert',
-  DRINK = 'drink',
-  APPETIZER = 'appetizer',
+  MAIN = 'Danie główne',
+  SIDE = 'Dodatki',
+  DESSERT = 'Desery',
+  DRINK = 'Napoje',
+  APPETIZER = 'Przystawki',
 }
 
 export enum MealType {
-  BREAKFAST = 'breakfast',
-  LUNCH = 'lunch',
-  DINNER = 'dinner',
-  SNACK = 'snack',
+  BREAKFAST = 'Śniadanie',
+  LUNCH = 'Obiad',
+  DINNER = 'Kolacja',
+  SNACK = 'Przekąska',
 }
 
 @Entity('recipes')

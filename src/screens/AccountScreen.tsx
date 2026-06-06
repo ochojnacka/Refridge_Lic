@@ -29,7 +29,7 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
 
   return (
     <View style={styles.container}>
-      <AppHeader title="Workspace Account" showNotifications={true} />
+      <AppHeader title="Twoje konto" showNotifications={true} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
@@ -42,7 +42,7 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
               onPress={() => retry()}
               style={{ backgroundColor: '#c92a2a', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
             >
-              <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+              <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Spróbuj ponownie</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -53,26 +53,26 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
             <View style={styles.iconContainerPrimary}>
               <User size={22} color="#2ecc71" />
             </View>
-            <Text style={styles.cardTitle}>User Information</Text>
+            <Text style={styles.cardTitle}>Informacje o Użytkowniku</Text>
           </View>
 
           {userInfo && (
             <View style={styles.cardBody}>
               <View style={styles.dataRow}>
-                <Text style={styles.label}>Corporate Email</Text>
+                <Text style={styles.label}>E-mail Firmowy</Text>
                 <Text style={styles.value}>{userInfo.email}</Text>
               </View>
 
               {userInfo.name && (
                 <View style={styles.dataRow}>
-                  <Text style={styles.label}>Administrator Name</Text>
+                  <Text style={styles.label}>Imię i Nazwisko</Text>
                   <Text style={styles.value}>{userInfo.name}</Text>
                 </View>
               )}
 
               {userInfo.role && (
                 <View style={styles.dataRow}>
-                  <Text style={styles.label}>System Role</Text>
+                  <Text style={styles.label}>Rola w systemie</Text>
                   <View style={styles.badge}>
                     <ShieldCheck size={14} color="#27ae60" />
                     <Text style={styles.badgeText}>{userInfo.role}</Text>
@@ -89,13 +89,13 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
             <View style={styles.iconContainerSecondary}>
               <Building2 size={22} color="#3498db" />
             </View>
-            <Text style={styles.cardTitle}>Connected Workspace</Text>
+            <Text style={styles.cardTitle}>Połączony Workspace</Text>
           </View>
           
           <View style={styles.cardBody}>
             <View style={[styles.dataRow, { borderBottomWidth: 0, paddingBottom: 0 }]}>
-              <Text style={styles.label}>Restaurant ID</Text>
-              <Text style={styles.valueMono}>{userInfo?.restaurantId || 'Pending connection...'}</Text>
+              <Text style={styles.label}>ID Restauracji</Text>
+              <Text style={styles.valueMono}>{userInfo?.restaurantId || 'Oczekiwanie na połączenie...'}</Text>
             </View>
           </View>
         </View>
@@ -104,14 +104,14 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
         <View style={styles.infoBox}>
           <Text style={styles.infoBoxTitle}>Refridge B2B Engine</Text>
           <Text style={styles.infoBoxText}>
-            This is your secure restaurant management portal. Use the navigation bar to manage inventory, log waste, and access AI-powered profitability insights.
+Refridge B2B to innowacyjna platforma do zarządzania marnowaniem żywności w restauracjach. Nasze narzędzie wykorzystuje zaawansowane algorytmy i analizę danych, aby pomóc właścicielom restauracji zidentyfikować obszary, w których można zredukować straty żywności, zoptymalizować zamówienia i zwiększyć rentowność. Dzięki Refridge B2B możesz łatwo monitorować stan zapasów, otrzymywać inteligentne sugestie dotyczące menu i podejmować świadome decyzje biznesowe, które przyniosą korzyści zarówno Twojej restauracji, jak i środowisku.
           </Text>
         </View>
 
         {/* Przycisk Wyloguj */}
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <LogOut size={20} color="white" />
-          <Text style={styles.logoutText}>Secure Logout</Text>
+          <Text style={styles.logoutText}>Wyloguj się</Text>
         </TouchableOpacity>
 
       </ScrollView>

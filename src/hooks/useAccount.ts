@@ -25,11 +25,11 @@ export function useAccount() {
         const decoded = JSON.parse(atob(base64));
         setUserInfo(decoded);
       } else {
-        throw new Error('Invalid token format');
+        throw new Error('Nieprawidłowy token JWT');
       }
     } catch (err) {
-      console.error('Error loading user info:', err);
-      setError('Failed to load user profile. Please try again.');
+      console.error('Błąd ładowania informacji o użytkowniku:', err);
+      setError('Nie udało się załadować profilu użytkownika. Proszę spróbować ponownie.');
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export function useAccount() {
     try {
       await apiClient.clearToken();
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error('Błąd podczas wylogowywania:', err);
       throw err;
     }
   };

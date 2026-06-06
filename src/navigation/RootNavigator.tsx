@@ -66,7 +66,7 @@ function TabsNavigator() {
         name="Suggestions"
         component={MenuSuggestionsScreen}
         options={{
-          tabBarLabel: "Suggestions",
+          tabBarLabel: "Sugestie",
           tabBarIcon: ({ color }) => <Lightbulb size={24} color={color} strokeWidth={2} />,
         }}
       />
@@ -74,7 +74,7 @@ function TabsNavigator() {
         name="Inventory"
         component={InventoryScreen}
         options={{
-          tabBarLabel: "Inventory",
+          tabBarLabel: "Magazyn",
           tabBarIcon: ({ color }) => <Package size={24} color={color} strokeWidth={2} />,
         }}
       />
@@ -82,7 +82,7 @@ function TabsNavigator() {
         name="Account"
         component={AccountScreen}
         options={{
-          tabBarLabel: "Account",
+          tabBarLabel: "Konto",
           tabBarIcon: ({ color }) => <User size={24} color={color} strokeWidth={2} />,
         }}
       />
@@ -101,10 +101,10 @@ export function RootNavigator() {
 
         await apiClient.loadToken();
         const hasToken = (apiClient as any).token !== null;
-        console.log('[Auth Check] Token found:', hasToken);
+        console.log('[Auth Check] Token znaleziony:', hasToken);
         setIsAuthenticated(hasToken);
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('Błąd autoryzacji:', error);
         setIsAuthenticated(false);
       } finally {
         setIsCheckingAuth(false);

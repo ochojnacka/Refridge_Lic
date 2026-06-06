@@ -28,8 +28,8 @@ export function AlertsScreen({ navigation }: Props) {
     socket.on('waste:logged', (data) => {
       const newAlert: AlertItem = {
         id: Date.now().toString(),
-        title: 'New Waste Recorded',
-        message: `System: ${data.quantity} ${data.unit} of ${data.itemId} logged as waste.`,
+        title: 'Nowy odpad',
+        message: `Odpady zostały zarejestrowane: ${data.amount} ${data.unit}, ${data.type}`,
         type: 'warning',
         timestamp: new Date().toLocaleTimeString(),
       };
@@ -45,7 +45,7 @@ export function AlertsScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <AppHeader title="System Alerts" onBack={() => navigation.goBack()} />
+      <AppHeader title="Powiadomienia" onBack={() => navigation.goBack()} />
 
       <ScrollView 
         style={styles.scrollContainer} 
@@ -53,11 +53,11 @@ export function AlertsScreen({ navigation }: Props) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => setRefreshing(false)} />}
       >
         <View style={styles.actionRow}>
-          <Text style={styles.sectionTitle}>Live Events</Text>
+          <Text style={styles.sectionTitle}>Powiadomienia</Text>
           {alerts.length > 0 && (
             <TouchableOpacity onPress={clearAlerts} style={styles.clearButton}>
               <Trash2 size={16} color="#fa5252" />
-              <Text style={styles.clearText}>Clear</Text>
+              <Text style={styles.clearText}>Wyczyść</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -65,7 +65,7 @@ export function AlertsScreen({ navigation }: Props) {
         {alerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Bell size={48} color="#dee2e6" />
-            <Text style={styles.emptyStateText}>No active alerts</Text>
+            <Text style={styles.emptyStateText}>Brak aktywnych powiadomień</Text>
           </View>
         ) : (
           <View style={styles.list}>

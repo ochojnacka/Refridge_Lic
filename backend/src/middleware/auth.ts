@@ -6,7 +6,7 @@ export interface AuthRequest extends Request {
     id: string;
     restaurantId: string;
     email: string;
-    role: 'manager' | 'chef' | 'admin';
+    role: 'Menedżer' | 'Szef kuchni' | 'Administrator';
   };
 }
 

@@ -26,8 +26,8 @@ export function useInventory() {
         setItems(response.data);
       }
     } catch (err) {
-      console.error('Error loading inventory:', err);
-      setError('Failed to load inventory. Check your connection.');
+      console.error('Błąd ładowania zapasów:', err);
+      setError('Nie udało się załadować zapasów. Proszę sprawdzić połączenie z internetem.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -45,7 +45,7 @@ export function useInventory() {
       await fetchInventory(); // Automatyczne odświeżenie po dodaniu
       return true;
     } catch (err) {
-      setError('Failed to add item. Check your connection.');
+      setError('Nie udało się dodać elementu. Proszę sprawdzić połączenie z internetem.');
       return false;
     }
   };
@@ -61,7 +61,7 @@ export function useInventory() {
       await fetchInventory(); // Automatyczne odświeżenie po usunięciu
       return true;
     } catch (err) {
-      setError('Failed to delete item. Check your connection.');
+      setError('Nie udało się usunąć elementu. Proszę sprawdzić połączenie z internetem.');
       return false;
     }
   };

@@ -10,7 +10,7 @@ const inventoryRepository = AppDataSource.getRepository(InventoryItem);
 router.get('/items', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const items = await inventoryRepository.find({
@@ -20,8 +20,8 @@ router.get('/items', authenticateToken, async (req: AuthRequest, res: Response) 
 
     res.json(items);
   } catch (error) {
-    console.error('Error fetching inventory:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd podczas pobierania zapasów:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -29,13 +29,13 @@ router.get('/items', authenticateToken, async (req: AuthRequest, res: Response) 
 router.post('/items', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { name, quantity, unit, costPrice, expiryDate, category, suppliedBy } = req.body;
 
     if (!name || quantity === undefined || !unit || costPrice === undefined || !category) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Brak wymaganych pól' });
     }
 
     const item = inventoryRepository.create({
@@ -53,8 +53,8 @@ router.post('/items', authenticateToken, async (req: AuthRequest, res: Response)
 
     res.status(201).json(item);
   } catch (error) {
-    console.error('Error creating inventory item:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd podczas tworzenia pozycji magazynowej:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -62,7 +62,7 @@ router.post('/items', authenticateToken, async (req: AuthRequest, res: Response)
 router.patch('/items/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { id } = req.params;
@@ -85,8 +85,8 @@ router.patch('/items/:id', authenticateToken, async (req: AuthRequest, res: Resp
 
     res.json(item);
   } catch (error) {
-    console.error('Error updating inventory item:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd podczas aktualizacji pozycji magazynowej:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -94,7 +94,7 @@ router.patch('/items/:id', authenticateToken, async (req: AuthRequest, res: Resp
 router.delete('/items/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { id } = req.params;
@@ -104,15 +104,15 @@ router.delete('/items/:id', authenticateToken, async (req: AuthRequest, res: Res
     });
 
     if (!item) {
-      return res.status(404).json({ error: 'Item not found' });
+      return res.status(404).json({ error: 'Pozycja nie znaleziona' });
     }
 
     await inventoryRepository.remove(item);
 
-    res.json({ success: true, message: 'Item deleted' });
+    res.json({ success: true, message: 'Pozycja usunięta' });
   } catch (error) {
-    console.error('Error deleting inventory item:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd podczas usuwania pozycji magazynowej:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 

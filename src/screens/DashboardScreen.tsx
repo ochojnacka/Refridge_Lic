@@ -43,7 +43,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadAnalytics(true)} />}
       >
         <View style={{ padding: 16 }}>
-          <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#333' }}>Analytics Dashboard</Text>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#333' }}>Dashboard Analityczny</Text>
 
           {/* Time Range Toggle */}
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
@@ -61,7 +61,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
               }}
             >
               <Text style={{ fontWeight: '600', color: timeRange === 'today' ? '#fff' : '#495057', fontSize: 13 }}>
-                Today
+                Dzisiaj
               </Text>
               <Text style={{ fontWeight: '500', color: timeRange === 'today' ? 'rgba(255,255,255,0.8)' : '#868e96', fontSize: 11, marginTop: 2 }}>
                 {todayLabel}
@@ -82,7 +82,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
               }}
             >
               <Text style={{ fontWeight: '600', color: timeRange === 'week' ? '#fff' : '#495057', fontSize: 13 }}>
-                This Week
+                Ten tydzień
               </Text>
               <Text style={{ fontWeight: '500', color: timeRange === 'week' ? 'rgba(255,255,255,0.8)' : '#868e96', fontSize: 11, marginTop: 2 }}>
                 {weekLabel}
@@ -100,7 +100,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
                 onPress={() => loadAnalytics()}
                 style={{ backgroundColor: '#fa5252', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6 }}
               >
-                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Ponów</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -119,17 +119,17 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <TrendingUp size={24} color="#2ecc71" />
-                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Profitability</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Rentowność</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                   <View>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Revenue</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Dochód</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2ecc71' }}>
                       {formatPrice(profitabilityReport.totalRevenue || 0)} PLN
                     </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Profit</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Zysk</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2ecc71' }}>
                       {formatPrice(profitabilityReport.totalProfit || 0)} PLN
                     </Text>
@@ -137,7 +137,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
                 </View>
                 <View style={{ backgroundColor: 'rgba(46, 204, 113, 0.1)', padding: 8, borderRadius: 6 }}>
                   <Text style={{ fontSize: 12, color: '#2ecc71', fontWeight: '700' }}>
-                    Margin: {formatPercent(profitabilityReport.profitMargin || 0)}%
+                    Marża: {formatPercent(profitabilityReport.profitMargin || 0)}%
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -151,17 +151,17 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <AlertTriangle size={24} color="#fa5252" />
-                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Waste Report</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Raport odpadów</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <View>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Total Waste</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Łączna ilość odpadów</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#fa5252' }}>
                       {formatPrice(wasteReport.totalWaste || 0)} PLN
                     </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Waste %</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>% odpadów</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#fa5252' }}>
                       {formatPercent(wasteReport.wastePercentage || 0)}%
                     </Text>
@@ -178,17 +178,17 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <Package size={24} color="#3498db" />
-                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Inventory Status</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Status zapasów</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <View>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Total Items</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Łączna ilość pozycji</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#3498db' }}>
                       {inventoryHealth.totalItems || 0}
                     </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Total Value</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Łączna wartość</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#3498db' }}>
                       {formatPrice(inventoryHealth.totalValue || 0)} PLN
                     </Text>
@@ -198,7 +198,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
                   <View style={{ marginTop: 12, backgroundColor: '#fff5f5', padding: 10, borderRadius: 6, flexDirection: 'row', alignItems: 'center' }}>
                     <AlertTriangle size={14} color="#fa5252" />
                     <Text style={{ fontSize: 12, color: '#c92a2a', fontWeight: '600', marginLeft: 6 }}>
-                      {inventoryHealth.criticalLevels.length} items at critical stock level!
+                      {inventoryHealth.criticalLevels.length} pozycji na krytycznym poziomie!
                     </Text>
                   </View>
                 )}
@@ -208,16 +208,16 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
             {/* Top Recipes */}
             {profitabilityReport?.topRecipes && profitabilityReport.topRecipes.length > 0 && (
               <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 12, color: '#212529' }}>Top Recipes</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 12, color: '#212529' }}>Najlepsze Przepisy</Text>
                 {profitabilityReport.topRecipes.slice(0, 5).map((recipe: any, idx: number) => (
                   <View key={idx} style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: '#f1c40f', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 15, fontWeight: '600', color: '#343a40' }}>{recipe.name}</Text>
-                        <Text style={{ fontSize: 13, color: '#868e96', marginTop: 4 }}>Profit: {formatPrice(recipe.profit)} PLN</Text>
+                        <Text style={{ fontSize: 13, color: '#868e96', marginTop: 4 }}>Zysk: {formatPrice(recipe.profit)} PLN</Text>
                       </View>
                       <View style={{ alignItems: 'flex-end', backgroundColor: '#f8f9fa', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#495057' }}>{formatInteger(recipe.quantity)} sold</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#495057' }}>{formatInteger(recipe.quantity)} sprzedanych</Text>
                       </View>
                     </View>
                   </View>

@@ -15,7 +15,7 @@ export function useWasteLogging() {
   // Form state
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [quantity, setQuantity] = useState('');
-  const [reason, setReason] = useState<WasteReason>('Expired');
+  const [reason, setReason] = useState<WasteReason>('Przeterminowany');
 
   // WebSocket state
   const socketRef = useRef<Socket | null>(null);
@@ -36,8 +36,8 @@ export function useWasteLogging() {
         setItems(response.data);
       }
     } catch (err) {
-      console.error('Error loading inventory:', err);
-      setError('Failed to load inventory. Check your connection.');
+      console.error('Błąd ładowania zapasów:', err);
+      setError('Nie udało się załadować zapasów. Proszę sprawdzić połączenie z internetem.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -73,7 +73,7 @@ export function useWasteLogging() {
     const interval = setInterval(() => {
       const secondsAgo = Math.floor((Date.now() - lastWasteTime) / 1000);
       if (secondsAgo <= 10) {
-        setBadgeText(`New waste logged ${secondsAgo}s ago by staff`);
+        setBadgeText(`Nowe marnotrawstwo! (${secondsAgo}s temu)`);
       } else {
         setBadgeText(null);
         setLastWasteTime(null);
@@ -90,7 +90,7 @@ export function useWasteLogging() {
 
   const handleLogWaste = async () => {
     if (!selectedItem || !quantity) {
-      Alert.alert('Validation Error', 'Please select an item and enter the quantity.');
+      Alert.alert('Błąd walidacji', 'Proszę wybrać element i wprowadzić ilość.');
       return;
     }
 
@@ -102,7 +102,7 @@ export function useWasteLogging() {
 
       if (response.error) {
         setError(response.error);
-        Alert.alert('System Error', response.error);
+        Alert.alert('Błąd systemu', response.error);
       } else {
         setSuccess(true);
         // Reset formularza
@@ -114,7 +114,7 @@ export function useWasteLogging() {
         fetchInventory();
       }
     } catch (err) {
-      const errMsg = err instanceof Error ? err.message : 'Failed to connect to the server.';
+      const errMsg = err instanceof Error ? err.message : 'Nie udało się połączyć z serwerem.';
       setError(errMsg);
     } finally {
       setSubmitting(false);

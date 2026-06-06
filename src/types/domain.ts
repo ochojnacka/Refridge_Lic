@@ -1,11 +1,11 @@
 // 1. Zaktualizowane jednostki miary (zgodnie z InventoryScreen)
-export type Unit = "kg" | "g" | "l" | "ml" | "pcs" | "box" | "bundle";
+export type Unit = "kg" | "g" | "l" | "ml" | "szt." | "op." | "zest.";
 
 // 2. Profesjonalne kategorie magazynowe
-export type Category = "VEGETABLES" | "MEAT" | "DAIRY" | "SPICES" | "PANTRY" | "FROZEN" | "BEVERAGES" | "OTHER";
+export type Category = "Warzywa" | "Mięso" | "Nabiał" | "Przyprawy" | "Spiżarnia" | "Mrożone" | "Napoje" | "Inne";
 
-export const UNITS: Unit[] = ["kg", "g", "l", "ml", "pcs", "box", "bundle"];
-export const CATEGORIES: Category[] = ["VEGETABLES", "MEAT", "DAIRY", "SPICES", "PANTRY", "FROZEN", "BEVERAGES", "OTHER"];
+export const UNITS: Unit[] = ["kg", "g", "l", "ml", "szt.", "op.", "zest."];
+export const CATEGORIES: Category[] = ["Warzywa", "Mięso", "Nabiał", "Przyprawy", "Spiżarnia", "Mrożone", "Napoje", "Inne"];
 
 // 3. Pozycja Magazynowa
 export interface InventoryItem {
@@ -18,7 +18,7 @@ export interface InventoryItem {
 }
 
 // 4. Typy dla WasteLoggingScreen 
-export type WasteReason = 'Expired' | 'Damaged' | 'Over-production' | 'Other';
+export type WasteReason = 'Przeterminowany' | 'Uszkodzony' | 'Nadprodukcja' | 'Inne';
 
 export interface WasteLog {
   id: string;

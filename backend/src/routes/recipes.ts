@@ -10,7 +10,7 @@ const recipeRepository = AppDataSource.getRepository(Recipe);
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const recipes = await recipeRepository.find({
@@ -26,8 +26,8 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
     res.json(recipesWithMargin);
   } catch (error) {
-    console.error('Error fetching recipes:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd pobierania przepisów:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -35,13 +35,13 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { name, description, ingredientIds, costPrice, salePrice, category, mealTypes, prepTimeMinutes } = req.body;
 
     if (!name || costPrice === undefined || salePrice === undefined || !category) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Brak wymaganych pól' });
     }
 
     const recipe = recipeRepository.create({
@@ -63,8 +63,8 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       margin: recipe.getMargin(),
     });
   } catch (error) {
-    console.error('Error creating recipe:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd tworzenia przepisu:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -72,7 +72,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { id } = req.params;
@@ -83,7 +83,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
     });
 
     if (!recipe) {
-      return res.status(404).json({ error: 'Recipe not found' });
+      return res.status(404).json({ error: 'Przepis nie znaleziony' });
     }
 
     if (name !== undefined) recipe.name = name;
@@ -103,8 +103,8 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       margin: recipe.getMargin(),
     });
   } catch (error) {
-    console.error('Error updating recipe:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd aktualizacji przepisu:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 
@@ -112,7 +112,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
 router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     }
 
     const { id } = req.params;
@@ -122,15 +122,15 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
     });
 
     if (!recipe) {
-      return res.status(404).json({ error: 'Recipe not found' });
+      return res.status(404).json({ error: 'Przepis nie znaleziony' });
     }
 
     await recipeRepository.remove(recipe);
 
-    res.json({ success: true, message: 'Recipe deleted' });
+    res.json({ success: true, message: 'Przepis usunięty' });
   } catch (error) {
-    console.error('Error deleting recipe:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Błąd usuwania przepisu:', error);
+    res.status(500).json({ error: 'Wewnętrzny błąd serwera' });
   }
 });
 

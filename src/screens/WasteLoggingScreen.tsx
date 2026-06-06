@@ -11,7 +11,7 @@ interface WasteLoggingScreenProps {
   navigation: any;
 }
 
-const WASTE_REASONS: WasteReason[] = ['Expired', 'Damaged', 'Over-production', 'Other'];
+const WASTE_REASONS: WasteReason[] = ['Przeterminowany', 'Uszkodzony', 'Nadprodukcja', 'Inne'];
 
 export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
   // Pobieramy całą logikę z hooka
@@ -75,7 +75,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
           {success && (
             <View style={styles.successAlert}>
               <CheckCircle size={20} color="#2b8a3e" />
-              <Text style={styles.successAlertText}>Waste entry successfully recorded in the system.</Text>
+              <Text style={styles.successAlertText}>Odpady zarejestrowane.</Text>
             </View>
           )}
 
@@ -88,17 +88,17 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 onPress={() => fetchInventory()}
                 style={{ backgroundColor: '#c92a2a', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
               >
-                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Retry</Text>
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>Ponów</Text>
               </TouchableOpacity>
             </View>
           )}
 
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Record Incident</Text>
+            <Text style={styles.formTitle}>Zarejestruj odpady</Text>
             
             {/* Item Selector */}
             <View style={[styles.inputGroup, { zIndex: 2000 }]}>
-              <Text style={styles.label}>Select Inventory Item *</Text>
+              <Text style={styles.label}>Wybierz pozycję *</Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowItemPicker(!showItemPicker);
@@ -107,7 +107,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 style={styles.pickerButton}
               >
                 <Text style={[styles.pickerButtonText, !selectedItem && { color: '#adb5bd' }]}>
-                  {selectedItem ? selectedItem.name : 'Choose an item from storage...'}
+                  {selectedItem ? selectedItem.name : 'Wybierz pozycję z zapasów...'}
                 </Text>
                 <ChevronDown size={20} color="#adb5bd" style={{ transform: [{ rotate: showItemPicker ? '180deg' : '0deg' }] }} />
               </TouchableOpacity>
@@ -116,7 +116,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 <View style={styles.dropdownMenu}>
                   <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
                     {items.length === 0 ? (
-                      <Text style={styles.emptyText}>No items available in inventory</Text>
+                      <Text style={styles.emptyText}>Brak dostępnych pozycji w zapasach</Text>
                     ) : (
                       items.map((item) => (
                         <TouchableOpacity
@@ -129,7 +129,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                         >
                           <Text style={styles.dropdownItemTitle}>{item.name}</Text>
                           <Text style={styles.dropdownItemSub}>
-                            Stock: {formatQty(item.quantity)} {item.unit} • Cost: {formatPrice(item.costPrice)} PLN/{item.unit}
+                            Ilość: {formatQty(item.quantity)} {item.unit} • Koszt: {formatPrice(item.costPrice)} PLN/{item.unit}
                           </Text>
                         </TouchableOpacity>
                       ))
@@ -142,7 +142,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
             {/* Quantity Input */}
             <View style={[styles.inputGroup, { zIndex: 1 }]}>
               <Text style={styles.label}>
-                Quantity Wasted * {selectedItem ? `(${selectedItem.unit})` : ''}
+                Ilość zmarnowana * {selectedItem ? `(${selectedItem.unit})` : ''}
               </Text>
               <TextInput
                 value={quantity}
@@ -160,7 +160,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
 
             {/* Reason Selector */}
             <View style={[styles.inputGroup, { zIndex: 1000 }]}>
-              <Text style={styles.label}>Reason for Waste *</Text>
+              <Text style={styles.label}>Powód wyrzucenia *</Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowReasonPicker(!showReasonPicker);
@@ -197,7 +197,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
             {/* Waste Value Display */}
             {selectedItem && quantity ? (
               <View style={styles.financialImpactBox}>
-                <Text style={styles.financialImpactLabel}>Estimated Financial Loss</Text>
+                <Text style={styles.financialImpactLabel}>Szacowana strata finansowa</Text>
                 <Text style={styles.financialImpactValue}>{formatPrice(wasteValue)} PLN</Text>
               </View>
             ) : null}
@@ -211,7 +211,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
               {submitting ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.submitButtonText}>Commit Waste Log</Text>
+                <Text style={styles.submitButtonText}>Zarejestruj odpady</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -220,7 +220,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
           <View style={styles.infoBox}>
             <Info size={16} color="#868e96" style={{ marginTop: 2 }} />
             <Text style={styles.infoBoxText}>
-              Logging waste incidents updates your inventory levels in real-time and calculates the impact on your restaurant's profit margin.
+              Rejestrowanie przypadków marnowania pozwala na lepsze zrozumienie, które produkty są najczęściej wyrzucane i dlaczego. Dzięki temu możesz podejmować świadome decyzje dotyczące zamówień i produkcji, minimalizując straty i zwiększając efektywność operacyjną.
             </Text>
           </View>
           

@@ -16,7 +16,7 @@ const CHEF_ID = 'b2c3d4e5-f6a7-48b9-c2d3-e4f5a6b7c8d9';
 async function seedDatabase() {
   try {
     await AppDataSource.initialize();
-    console.log('📊 Database initialized for seeding');
+    console.log('📊 Baza danych zainicjalizowana do seedowania');
 
     const restaurantRepo = AppDataSource.getRepository(Restaurant);
     const userRepo = AppDataSource.getRepository(User);
@@ -29,13 +29,13 @@ async function seedDatabase() {
     const restaurant = restaurantRepo.create({
       id: RESTAURANT_ID,
       name: 'Bistro Na Rogu',
-      city: 'Kraków',
+      city: 'Gdańsk',
       seats: 45,
       avgCoversPerDay: 75,
-      description: 'Włoskie bistro w sercu Krakowa',
+      description: 'Włoskie bistro w sercu Gdańska, serwujące autentyczne dania kuchni włoskiej z lokalnych składników.',
     });
     await restaurantRepo.save(restaurant);
-    console.log('✅ Restaurant created');
+    console.log('✅ Restauracja utworzona');
 
     // 2. Create Users
     const hashedPassword = await bcrypt.hash('demo123', 10);
@@ -43,7 +43,7 @@ async function seedDatabase() {
     const manager = userRepo.create({
       id: MANAGER_ID,
       restaurantId: RESTAURANT_ID,
-      email: 'manager@bistro.pl',
+      email: 'menedżer@bistro.pl',
       passwordHash: hashedPassword,
       name: 'Paweł Nowak',
       role: UserRole.MANAGER,
@@ -53,7 +53,7 @@ async function seedDatabase() {
     const chef = userRepo.create({
       id: CHEF_ID,
       restaurantId: RESTAURANT_ID,
-      email: 'chef@bistro.pl',
+      email: 'szef@bistro.pl',
       passwordHash: hashedPassword,
       name: 'Michał Kowalski',
       role: UserRole.CHEF,
@@ -61,17 +61,17 @@ async function seedDatabase() {
     });
 
     await userRepo.save([manager, chef]);
-    console.log('✅ Users created (manager + chef)');
+    console.log('✅ Użytkownicy utworzeni (menedżer + szef kuchni)');
 
     // 3. Create Inventory Items (Italian products)
     const ingredients = [
       { name: 'Pomidory', unit: Unit.KG, costPrice: 4.5, category: ItemCategory.VEGETABLES, suppliedBy: 'Hurtownia Warzyw' },
       { name: 'Mozzarella', unit: Unit.KG, costPrice: 22, category: ItemCategory.DAIRY, suppliedBy: 'Dostawca Mleczarni' },
-      { name: 'Pasta Spaghetti', unit: Unit.KG, costPrice: 3.5, category: ItemCategory.BREAD, suppliedBy: 'Makaron Import' },
+      { name: 'Makaron Spaghetti', unit: Unit.KG, costPrice: 3.5, category: ItemCategory.BREAD, suppliedBy: 'Makaron Import' },
       { name: 'Oliwa z oliwek', unit: Unit.LITER, costPrice: 45, category: ItemCategory.BEVERAGES, suppliedBy: 'Włochy Oliwa' },
-      { name: 'Basilicum', unit: Unit.GRAM, costPrice: 0.05, category: ItemCategory.SPICES, suppliedBy: 'Przyprawy Kraków' },
+      { name: 'Bazylia suszona', unit: Unit.GRAM, costPrice: 0.05, category: ItemCategory.SPICES, suppliedBy: 'Przyprawy Kraków' },
       { name: 'Mięso wołowe', unit: Unit.KG, costPrice: 35, category: ItemCategory.MEAT, suppliedBy: 'Mięsna Hala' },
-      { name: 'Ser Parmezana', unit: Unit.KG, costPrice: 28, category: ItemCategory.DAIRY, suppliedBy: 'Dostawca Mleczarni' },
+      { name: 'Ser Parmezan', unit: Unit.KG, costPrice: 28, category: ItemCategory.DAIRY, suppliedBy: 'Dostawca Mleczarni' },
       { name: 'Cytryny', unit: Unit.KG, costPrice: 3, category: ItemCategory.VEGETABLES, suppliedBy: 'Hurtownia Warzyw' },
     ];
 
@@ -91,13 +91,13 @@ async function seedDatabase() {
       inventoryItems.push(item);
     }
     await inventoryRepo.save(inventoryItems);
-    console.log(`✅ Inventory items created (${inventoryItems.length})`);
+    console.log(`✅ Pozycje magazynowe utworzone (${inventoryItems.length})`);
 
     // 4. Create Recipes
     const recipes = [
       {
         name: 'Spaghetti Carbonara',
-        description: 'Klasyczna włoska pasta',
+        description: 'Klasyczny makaron z sosem z jajek, sera i pancetty',
         costPrice: 8.5,
         salePrice: 28,
         category: RecipeCategory.MAIN,
@@ -105,7 +105,7 @@ async function seedDatabase() {
         prepTimeMinutes: 12,
       },
       {
-        name: 'Margherita Pizza',
+        name: 'Pizza Margherita',
         description: 'Pizza z pomidorami i mozzarellą',
         costPrice: 9,
         salePrice: 32,
@@ -114,7 +114,7 @@ async function seedDatabase() {
         prepTimeMinutes: 18,
       },
       {
-        name: 'Risotto Milanese',
+        name: 'Risotto alla Milanese',
         description: 'Risotto z szafranem',
         costPrice: 10.5,
         salePrice: 35,
@@ -123,7 +123,7 @@ async function seedDatabase() {
         prepTimeMinutes: 25,
       },
       {
-        name: 'Salata Caprese',
+        name: 'Salatka Caprese',
         description: 'Sałatka z mozzarellą i pomidorami',
         costPrice: 6.5,
         salePrice: 22,
@@ -133,7 +133,7 @@ async function seedDatabase() {
       },
       {
         name: 'Tiramisu',
-        description: 'Włoski deser klasyk',
+        description: 'Włoski deser z mascarpone i kawą',
         costPrice: 3,
         salePrice: 14,
         category: RecipeCategory.DESSERT,
@@ -142,7 +142,7 @@ async function seedDatabase() {
       },
       {
         name: 'Espresso',
-        description: 'Silna włoska kawa',
+        description: 'Mocna włoska kawa',
         costPrice: 0.8,
         salePrice: 6,
         category: RecipeCategory.DRINK,
@@ -161,7 +161,7 @@ async function seedDatabase() {
       recipeEntities.push(rec);
     }
     await recipeRepo.save(recipeEntities);
-    console.log(`✅ Recipes created (${recipeEntities.length})`);
+    console.log(`✅ Przepisy utworzone (${recipeEntities.length})`);
 
     // 5. Create 6 months of Sales data
     const salesData = [];
@@ -206,7 +206,7 @@ async function seedDatabase() {
     }
 
     await saleRepo.save(salesData);
-    console.log(`✅ Sales data created (${salesData.length} entries)`);
+    console.log(`✅ Dane sprzedażowe utworzone (${salesData.length} wpisów)`);
 
     // 6. Create Waste logs (2-3 per week)
     const wasteData = [];
@@ -224,7 +224,7 @@ async function seedDatabase() {
           const item = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
           const quantity = Math.random() * 5 + 0.5;
           const value = quantity * item.costPrice;
-          const reasons = ['Expired', 'Damaged', 'Over-production', 'Trim loss', 'Quality issue'];
+          const reasons = ['Przeterminowany', 'Uszkodzony', 'Nadprodukcja', 'Obróbka', 'Problemy jakościowe'];
 
           const waste = wasteRepo.create({
             restaurantId: RESTAURANT_ID,
@@ -241,17 +241,18 @@ async function seedDatabase() {
     }
 
     await wasteRepo.save(wasteData);
-    console.log(`✅ Waste logs created (${wasteData.length} entries)`);
+    console.log(`✅ Rejestracja wyrzucanych produktów utworzona - (${wasteData.length} wpisów)`);
 
-    console.log('\n✨ Seed completed successfully!');
-    console.log('\n🔑 Test Credentials:');
-    console.log('   Manager: manager@bistro.pl / demo123');
-    console.log('   Chef: chef@bistro.pl / demo123');
-    console.log('\n📊 Restaurant ID:', RESTAURANT_ID);
+    console.log('\n✨ Seedowanie zakończone pomyślnie!');
+    console.log('\n🔑 Dane logowania:');
+    console.log('   Menedżer: menedżer@bistro.pl / demo123');
+    console.log('   Szef kuchni: szef@bistro.pl / demo123');
+    console.log('   Administrator: admin@bistro.pl / demo123');    
+    console.log('\n📊 ID Restauracji:', RESTAURANT_ID);
 
     process.exit(0);
   } catch (error) {
-    console.error('❌ Seed failed:', error);
+    console.error('❌ Seedowanie nie powiodło się:', error);
     process.exit(1);
   }
 }

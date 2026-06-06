@@ -38,14 +38,14 @@ export function RecipeCard({ recipe, costPrice = 0, onPress }: RecipeCardProps) 
             </View>
             
             <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Selling Price</Text>
+              <Text style={styles.metricLabel}>Cena sprzedaży</Text>
               <Text style={[styles.metricValue, { color: COLORS.primary }]}>
                 {recipe.sellingPrice ? `${formatPrice(recipe.sellingPrice)} PLN` : 'N/A'}
               </Text>
             </View>
 
             <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Margin</Text>
+              <Text style={styles.metricLabel}>Marża</Text>
               <View style={styles.marginContainer}>
                 <TrendingUp size={14} color={margin > 60 ? "#2ecc71" : "#e67e22"} />
                 <Text style={[styles.marginText, { color: margin > 60 ? "#2ecc71" : "#e67e22" }]}>
@@ -57,11 +57,11 @@ export function RecipeCard({ recipe, costPrice = 0, onPress }: RecipeCardProps) 
 
           <View style={styles.footerRow}>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>{recipe.ingredients.length} ingredients</Text>
+              <Text style={styles.tagText}>{recipe.ingredients.length} składników</Text>
             </View>
             {recipe.instructions && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>Standardized</Text>
+                <Text style={styles.tagText}>Instrukcje</Text>
               </View>
             )}
           </View>

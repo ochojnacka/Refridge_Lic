@@ -59,15 +59,15 @@ const io = new SocketIOServer(server, {
 
 // WebSocket events
 io.on('connection', (socket) => {
-  console.log('📱 Client connected:', socket.id);
+  console.log('📱 Klient połączony:', socket.id);
 
   socket.on('join-restaurant', (restaurantId: string) => {
     socket.join(`restaurant-${restaurantId}`);
-    console.log(`✅ Socket joined restaurant-${restaurantId}`);
+    console.log(`✅ Dostęp do restauracji-${restaurantId}`);
   });
 
   socket.on('disconnect', () => {
-    console.log('📱 Client disconnected:', socket.id);
+    console.log('📱 Klient rozłączony:', socket.id);
   });
 });
 
@@ -81,11 +81,11 @@ const startServer = async () => {
     await initializeDatabase();
 
     server.listen(port, () => {
-      console.log(`🚀 Server running on http://localhost:${port}`);
-      console.log(`📊 Health check: http://localhost:${port}/health`);
+      console.log(`🚀 Serwer uruchomiony na: http://localhost:${port}`);
+      console.log(`📊 Sprawdzenie kondycji: http://localhost:${port}/health`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Błąd uruchamiania serwera:', error);
     process.exit(1);
   }
 };

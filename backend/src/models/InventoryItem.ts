@@ -4,13 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { Restaurant } from './Restaurant';
 
 export enum ItemCategory {
-  VEGETABLES = 'vegetables',
-  MEAT = 'meat',
-  DAIRY = 'dairy',
-  BREAD = 'bread',
-  SPICES = 'spices',
-  BEVERAGES = 'beverages',
-  OTHER = 'other',
+  VEGETABLES = 'Warzywa',
+  MEAT = 'Mięso',
+  DAIRY = 'Nabiał',
+  BREAD = 'Chleb',
+  SPICES = 'Przyprawy',
+  BEVERAGES = 'Napoje',
+  OTHER = 'Inne',
 }
 
 export enum Unit {

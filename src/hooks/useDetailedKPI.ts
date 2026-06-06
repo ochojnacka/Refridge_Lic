@@ -33,7 +33,7 @@ export function useDetailedKPI() {
 
       // Sprawdzenie czy którykolwiek z requestów zwrócił błąd
       if (wasteRes.error || profitRes.error || invRes.error || roiRes.error) {
-        setError('Some reports failed to load perfectly. Data might be incomplete.');
+        setError('Niektóre raporty nie zostały załadowane poprawnie. Dane mogą być niekompletne.');
       }
 
       if (wasteRes.data) setWasteData(wasteRes.data);
@@ -43,7 +43,7 @@ export function useDetailedKPI() {
 
     } catch (err) {
       console.error('Failed to load KPI data', err);
-      setError('Network request failed. Please check your connection.');
+      setError('Błąd sieci. Proszę sprawdzić połączenie z internetem.');
     } finally {
       setLoading(false);
       setRefreshing(false);

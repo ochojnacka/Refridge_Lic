@@ -11,12 +11,12 @@ export function useRegister() {
 
   const register = async () => {
     if (!email || !password || !name || !restaurantName) {
-      setError('All business details are required.');
+      setError('Wszystkie pola są wymagane.');
       return false;
     }
 
     if (password.length < 6) {
-      setError('Secure password must be at least 6 characters.');
+      setError('Hasło musi mieć co najmniej 6 znaków.');
       return false;
     }
 
@@ -32,7 +32,7 @@ export function useRegister() {
       }
       return true;
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError('Błąd sieci. Proszę spróbować ponownie.');
       return false;
     } finally {
       setLoading(false);
