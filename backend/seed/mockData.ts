@@ -18,6 +18,22 @@ async function seedDatabase() {
     await AppDataSource.initialize();
     console.log('📊 Baza danych zainicjalizowana do seedowania');
 
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    
+    // Lista tabel w kolejności zależności (od tych bez kluczy obcych do głównych)
+    // Ważne: usuwamy w kolejności odwrotnej do zależności!
+    // 1. Zaktualizowana kolejność usuwania (od tabel najbardziej "zależnych" do "głównych")
+    await queryRunner.query('DELETE FROM waste_logs');
+    await queryRunner.query('DELETE FROM sales');
+    await queryRunner.query('DELETE FROM menu_suggestions'); // <--- DODAJ TO
+    await queryRunner.query('DELETE FROM recipes');
+    await queryRunner.query('DELETE FROM inventory_items');
+    await queryRunner.query('DELETE FROM users');
+    await queryRunner.query('DELETE FROM restaurants');
+
+    console.log('🧹 Baza danych wyczyszczona!');
+
     const restaurantRepo = AppDataSource.getRepository(Restaurant);
     const userRepo = AppDataSource.getRepository(User);
     const inventoryRepo = AppDataSource.getRepository(InventoryItem);
@@ -73,20 +89,26 @@ async function seedDatabase() {
       { name: 'Mięso wołowe', unit: Unit.KG, costPrice: 35, category: ItemCategory.MEAT, suppliedBy: 'Mięsna Hala' },
       { name: 'Ser Parmezan', unit: Unit.KG, costPrice: 28, category: ItemCategory.DAIRY, suppliedBy: 'Dostawca Mleczarni' },
       { name: 'Cytryny', unit: Unit.KG, costPrice: 3, category: ItemCategory.VEGETABLES, suppliedBy: 'Hurtownia Warzyw' },
+      { name: 'Łosoś norweski', unit: Unit.KG, costPrice: 65, category: ItemCategory.MEAT, suppliedBy: 'Ryby Morza' },
+      { name: 'Wino białe', unit: Unit.LITER, costPrice: 30, category: ItemCategory.BEVERAGES, suppliedBy: 'Winiarnia' },
+      { name: 'Mrożony groszek', unit: Unit.KG, costPrice: 8, category: ItemCategory.OTHER, suppliedBy: 'Mrożonki' },
     ];
 
     const inventoryItems = [];
-    for (const ing of ingredients) {
+    for (let i = 0; i < ingredients.length; i++) {
+      const ing = ingredients[i];
       const item = inventoryRepo.create({
         restaurantId: RESTAURANT_ID,
         name: ing.name,
-        quantity: Math.random() * 100 + 50,
+        quantity: Math.random() * 70 + 20,
         unit: ing.unit,
         costPrice: ing.costPrice,
-        expiryDate: new Date(Date.now() + Math.random() * 60 * 24 * 60 * 60 * 1000),
+        expiryDate: i < 2 
+          ? new Date(Date.now() + 1 * 24 * 60 * 60 * 1000) // 2 pierwsze produkty zepsują się za 1 dzień!
+          : new Date(Date.now() + Math.random() * 60 * 24 * 60 * 60 * 1000),        
         category: ing.category,
         suppliedBy: ing.suppliedBy,
-        wastePercentage: Math.random() * 15 + 5,
+        wastePercentage: Math.random() * 15 + 2,
       });
       inventoryItems.push(item);
     }
@@ -95,60 +117,13 @@ async function seedDatabase() {
 
     // 4. Create Recipes
     const recipes = [
-      {
-        name: 'Spaghetti Carbonara',
-        description: 'Klasyczny makaron z sosem z jajek, sera i pancetty',
-        costPrice: 8.5,
-        salePrice: 28,
-        category: RecipeCategory.MAIN,
-        mealTypes: [MealType.LUNCH, MealType.DINNER],
-        prepTimeMinutes: 12,
-      },
-      {
-        name: 'Pizza Margherita',
-        description: 'Pizza z pomidorami i mozzarellą',
-        costPrice: 9,
-        salePrice: 32,
-        category: RecipeCategory.MAIN,
-        mealTypes: [MealType.LUNCH, MealType.DINNER],
-        prepTimeMinutes: 18,
-      },
-      {
-        name: 'Risotto alla Milanese',
-        description: 'Risotto z szafranem',
-        costPrice: 10.5,
-        salePrice: 35,
-        category: RecipeCategory.MAIN,
-        mealTypes: [MealType.LUNCH, MealType.DINNER],
-        prepTimeMinutes: 25,
-      },
-      {
-        name: 'Salatka Caprese',
-        description: 'Sałatka z mozzarellą i pomidorami',
-        costPrice: 6.5,
-        salePrice: 22,
-        category: RecipeCategory.APPETIZER,
-        mealTypes: [MealType.LUNCH, MealType.DINNER],
-        prepTimeMinutes: 5,
-      },
-      {
-        name: 'Tiramisu',
-        description: 'Włoski deser z mascarpone i kawą',
-        costPrice: 3,
-        salePrice: 14,
-        category: RecipeCategory.DESSERT,
-        mealTypes: [MealType.LUNCH, MealType.DINNER],
-        prepTimeMinutes: 0,
-      },
-      {
-        name: 'Espresso',
-        description: 'Mocna włoska kawa',
-        costPrice: 0.8,
-        salePrice: 6,
-        category: RecipeCategory.DRINK,
-        mealTypes: [MealType.BREAKFAST, MealType.LUNCH, MealType.DINNER],
-        prepTimeMinutes: 1,
-      },
+      { name: 'Spaghetti Carbonara', description: 'Klasyk włoski', costPrice: 8.5, salePrice: 28, category: RecipeCategory.MAIN, mealTypes: [MealType.LUNCH, MealType.DINNER], prepTimeMinutes: 12 },
+      { name: 'Pizza Margherita', description: 'Pizza z mozzarellą', costPrice: 9, salePrice: 32, category: RecipeCategory.MAIN, mealTypes: [MealType.LUNCH, MealType.DINNER], prepTimeMinutes: 18 },
+      { name: 'Stek z łososia', description: 'Łosoś z cytryną', costPrice: 15, salePrice: 45, category: RecipeCategory.MAIN, mealTypes: [MealType.DINNER], prepTimeMinutes: 20 },
+      { name: 'Risotto szafranowe', description: 'Ryż po mediolańsku', costPrice: 10.5, salePrice: 35, category: RecipeCategory.MAIN, mealTypes: [MealType.LUNCH], prepTimeMinutes: 25 },
+      { name: 'Caprese', description: 'Sałatka z mozzarellą', costPrice: 6.5, salePrice: 22, category: RecipeCategory.APPETIZER, mealTypes: [MealType.LUNCH, MealType.DINNER], prepTimeMinutes: 5 },
+      { name: 'Tiramisu', description: 'Włoski deser', costPrice: 3, salePrice: 14, category: RecipeCategory.DESSERT, mealTypes: [MealType.DINNER], prepTimeMinutes: 0 },
+      { name: 'Zupa pomidorowa', description: 'Zupa z bazylią', costPrice: 4, salePrice: 18, category: RecipeCategory.APPETIZER, mealTypes: [MealType.LUNCH], prepTimeMinutes: 15 },
     ];
 
     const recipeEntities = [];

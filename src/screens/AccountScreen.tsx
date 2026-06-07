@@ -89,7 +89,7 @@ export function AccountScreen({ navigation, onLogout }: AccountScreenProps) {
             <View style={styles.iconContainerSecondary}>
               <Building2 size={22} color="#3498db" />
             </View>
-            <Text style={styles.cardTitle}>Połączony Workspace</Text>
+            <Text style={styles.cardTitle}>Twoja Restauracja</Text>
           </View>
           
           <View style={styles.cardBody}>

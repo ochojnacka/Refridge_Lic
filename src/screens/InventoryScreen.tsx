@@ -101,7 +101,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                   }}
                 >
                   <Plus size={20} color="white" />
-                  <Text style={{ color: 'white', marginLeft: 6, fontWeight: '600' }}>Dodaj produkt</Text>
+                  <Text style={{ color: 'white', marginLeft: 6, fontWeight: '600' }}>Dodaj</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -178,7 +178,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
             <View style={{ backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 20, color: '#333' }}>Dodaj pozycję do magazynu</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 20, color: '#333' }}>Dodaj produkt do magazynu</Text>
 
                 {/* Item Name */}
                 <View style={{ marginBottom: 16 }}>
@@ -352,7 +352,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                       alignItems: 'center',
                     }}
                   >
-                    <Text style={{ color: 'white', fontWeight: '600' }}>Dodaj produkt</Text>
+                    <Text style={{ color: 'white', fontWeight: '600' }}>Dodaj</Text>
                   </TouchableOpacity>
                 </View>
               </ScrollView>

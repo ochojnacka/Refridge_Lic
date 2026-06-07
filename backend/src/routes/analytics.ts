@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { AuthRequest, authenticateToken } from '../middleware/auth';
+import { AuthRequest, authenticateToken, authorizeRole } from '../middleware/auth';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { MenuSuggestionService } from '../services/MenuSuggestionService';
 

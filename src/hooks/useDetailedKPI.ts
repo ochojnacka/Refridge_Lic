@@ -42,7 +42,7 @@ export function useDetailedKPI() {
       if (roiRes.data) setRoiData(roiRes.data);
 
     } catch (err) {
-      console.error('Failed to load KPI data', err);
+      console.error('Błąd podczas ładowania danych KPI', err);
       setError('Błąd sieci. Proszę sprawdzić połączenie z internetem.');
     } finally {
       setLoading(false);

@@ -33,12 +33,12 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
         >
           <View style={{ backgroundColor: '#ffffff', width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 }}>
             <ChevronLeft size={20} color="#495057" />
-          </View>
+          </View> 
           <Text style={{ fontSize: 15, marginLeft: 12, color: '#495057', fontWeight: '600' }}>Wróć do logowania</Text>
         </TouchableOpacity>
 
         <View style={{ marginBottom: 32 }}>
-          <Text style={{ fontSize: 28, fontWeight: '800', color: '#212529', marginBottom: 8 }}>Zarejestruj się</Text>
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#212529', marginBottom: 8 }}>Zarejestruj Lokal</Text>
           <Text style={{ fontSize: 15, color: '#6c757d', lineHeight: 22 }}>
             Dołącz do Refridge B2B i zacznij kontrolować marnowanie żywności w swojej restauracji już dziś!
           </Text>

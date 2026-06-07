@@ -25,8 +25,11 @@ export interface ProfitabilityReport {
 
 export interface InventoryHealthReport {
   totalItems: number;
-  totalValue: number; // PLN
+  totalValue: number;
   stockTurnoverDays: number;
+  turnoverRatio: number;
+  estimatedDepletionDays: number;
+  categoryBreakdown: Array<{ category: string; value: number; percentage: number }>; // NOWE: Struktura kapitału
   criticalLevels: Array<{ itemName: string; quantity: number; unit: string; status: 'CRITICAL' | 'LOW' | 'OK' }>;
 }
 
@@ -188,20 +191,48 @@ export class AnalyticsService {
   }
 
   async getInventoryHealth(restaurantId: string): Promise<InventoryHealthReport> {
-    const items = await this.inventoryRepository.find({ where: { restaurantId } });
-    const totalValue = items.reduce((sum, item) => sum + item.quantity * item.costPrice, 0);
+  const items = await this.inventoryRepository.find({ where: { restaurantId } });
+  const totalValue = items.reduce((sum, item) => sum + item.quantity * item.costPrice, 0);
 
+  const now = new Date();
+  const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+    // 1. Obliczanie struktury kapitału (Category Breakdown)
+    const categoryTotals: Record<string, number> = {};
+    for (const item of items) {
+      const cat = item.category || 'Inne';
+      const itemValue = item.quantity * item.costPrice;
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + itemValue;
+    }
+
+    const categoryBreakdown = Object.entries(categoryTotals)
+      .map(([category, value]) => ({
+        category,
+        value: Math.round(value * 100) / 100,
+        percentage: totalValue > 0 ? Math.round((value / totalValue) * 100) : 0
+      }))
+      .sort((a, b) => b.value - a.value); // Sortowanie od największej wartości
+
+    // 2. Wyznaczanie poziomów krytycznych
     const criticalLevels = items
-      .filter(item => item.quantity < 30)
-      .map(item => ({
+    .filter(item => {
+      const isLowStock = item.quantity < 10;
+      const isExpiringSoon = item.expiryDate && new Date(item.expiryDate) <= threeDaysFromNow;
+      return isLowStock || isExpiringSoon;
+    })
+    .map(item => {
+      const isExpiringSoon = item.expiryDate && new Date(item.expiryDate) <= threeDaysFromNow;
+      return {
         itemName: item.name,
         quantity: item.quantity,
         unit: item.unit,
-        status: item.quantity < 10 ? ('CRITICAL' as const) : ('LOW' as const),
-      }))
-      .sort((a, b) => a.quantity - b.quantity);
+        // Priorytet dla przeterminowania
+        status: isExpiringSoon ? ('CRITICAL' as const) : ('LOW' as const),
+      };
+    })
+    .sort((a, b) => a.quantity - b.quantity);
 
-    // Calculate Stock Turnover Days based on last 30 days COGS
+    // 3. Obliczanie wskaźników rotacji (Turnover Ratio) i wyczerpania (Depletion Days)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const sales = await this.saleRepository
       .createQueryBuilder('sale')
@@ -211,12 +242,21 @@ export class AnalyticsService {
       .getMany();
 
     const monthlyCOGS = sales.reduce((sum, s) => sum + (s.quantity * (s.recipe?.costPrice || 0)), 0);
-    const stockTurnoverDays = monthlyCOGS > 0 ? (totalValue / (monthlyCOGS / 30)) : 0;
+    
+    // Wskaźnik rotacji zapasów: Koszt sprzedanych towarów (COGS) / Wartość magazynu
+    const turnoverRatio = totalValue > 0 ? (monthlyCOGS / totalValue) : 0;
+    
+    // Czas wyczerpania: Ile dni wystarczy obecnych zapasów przy aktualnym średnim dziennym zużyciu
+    const dailyCOGS = monthlyCOGS / 30;
+    const estimatedDepletionDays = dailyCOGS > 0 ? (totalValue / dailyCOGS) : 0;
 
     return {
       totalItems: items.length,
       totalValue: Math.round(totalValue * 100) / 100,
-      stockTurnoverDays: Math.round(stockTurnoverDays * 10) / 10,
+      stockTurnoverDays: Math.round(estimatedDepletionDays * 10) / 10,
+      turnoverRatio: Math.round(turnoverRatio * 10) / 10,
+      estimatedDepletionDays: Math.round(estimatedDepletionDays * 10) / 10,
+      categoryBreakdown,
       criticalLevels,
     };
   }
