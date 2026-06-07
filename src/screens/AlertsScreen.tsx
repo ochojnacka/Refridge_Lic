@@ -28,8 +28,8 @@ export function AlertsScreen({ navigation }: Props) {
     socket.on('waste:logged', (data) => {
       const newAlert: AlertItem = {
         id: Date.now().toString(),
-        title: 'Nowy odpad',
-        message: `Odpady zostały zarejestrowane: ${data.amount} ${data.unit}, ${data.type}`,
+        title: 'Zarejestrowano stratę',
+        message: `Zgłoszono stratę: ${data.amount} ${data.unit}, ${data.type}`,
         type: 'warning',
         timestamp: new Date().toLocaleTimeString(),
       };

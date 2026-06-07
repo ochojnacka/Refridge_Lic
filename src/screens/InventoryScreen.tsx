@@ -75,7 +75,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <View>
                 <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>📦 Magazyn</Text>
-                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{items.length} produktów śledzonych</Text>
+                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{items.length} wprowadzonych produktów</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <TouchableOpacity
@@ -88,7 +88,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                     alignItems: 'center',
                   }}
                 >
-                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>🗑️ Odpady</Text>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>🗑️ Zgłoś stratę</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setModalVisible(true)}
@@ -121,7 +121,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
 
             {items.length === 0 && !error ? (
               <View style={{ alignItems: 'center', paddingTop: 40 }}>
-                <Text style={{ fontSize: 16, color: '#999' }}>Brak produktów w zapasach</Text>
+                <Text style={{ fontSize: 16, color: '#999' }}>Brak produktów w magazynie</Text>
               </View>
             ) : (
               <>
@@ -178,7 +178,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
             <View style={{ backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 20, color: '#333' }}>Dodaj pozycję do zapasów</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 20, color: '#333' }}>Dodaj pozycję do magazynu</Text>
 
                 {/* Item Name */}
                 <View style={{ marginBottom: 16 }}>
@@ -275,7 +275,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                       fontSize: 14,
                     }}
                   />
-                  <Text style={{ fontSize: 11, color: '#999', marginTop: 4 }}>💡 To jest cena zakupu za {newItem.unit} (np., 5 PLN/kg)</Text>
+                  <Text style={{ fontSize: 11, color: '#999', marginTop: 4 }}>💡 To jest cena zakupu za {newItem.unit} (np. 5 PLN/kg)</Text>
                 </View>
 
                 {/* Category */}
@@ -352,7 +352,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                       alignItems: 'center',
                     }}
                   >
-                    <Text style={{ color: 'white', fontWeight: '600' }}>Dodaj pozycję</Text>
+                    <Text style={{ color: 'white', fontWeight: '600' }}>Dodaj produkt</Text>
                   </TouchableOpacity>
                 </View>
               </ScrollView>

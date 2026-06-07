@@ -123,7 +123,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                   <View>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Dochód</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Przychód</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2ecc71' }}>
                       {formatPrice(profitabilityReport.totalRevenue || 0)} PLN
                     </Text>
@@ -178,7 +178,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <Package size={24} color="#3498db" />
-                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Status zapasów</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 8, color: '#333' }}>Status magazynu</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <View>
@@ -188,7 +188,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
                     </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Łączna wartość</Text>
+                    <Text style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Łączna wartość produktów</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#3498db' }}>
                       {formatPrice(inventoryHealth.totalValue || 0)} PLN
                     </Text>

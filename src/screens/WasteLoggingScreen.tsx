@@ -51,7 +51,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
   return (
     <View style={styles.container}>
       <AppHeader 
-        title="Waste Logging" 
+        title="Zgłoszenie straty" 
         onBack={() => navigation.goBack()} 
         showNotifications={true} 
       />
@@ -75,7 +75,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
           {success && (
             <View style={styles.successAlert}>
               <CheckCircle size={20} color="#2b8a3e" />
-              <Text style={styles.successAlertText}>Odpady zarejestrowane.</Text>
+              <Text style={styles.successAlertText}>Strata zarejestrowana.</Text>
             </View>
           )}
 
@@ -94,11 +94,11 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
           )}
 
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Zarejestruj odpady</Text>
+            <Text style={styles.formTitle}>Zarejestruj stratę</Text>
             
             {/* Item Selector */}
             <View style={[styles.inputGroup, { zIndex: 2000 }]}>
-              <Text style={styles.label}>Wybierz pozycję *</Text>
+              <Text style={styles.label}>Wybierz produkt *</Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowItemPicker(!showItemPicker);
@@ -107,7 +107,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 style={styles.pickerButton}
               >
                 <Text style={[styles.pickerButtonText, !selectedItem && { color: '#adb5bd' }]}>
-                  {selectedItem ? selectedItem.name : 'Wybierz pozycję z zapasów...'}
+                  {selectedItem ? selectedItem.name : 'Wybierz produkt z magazynu...'}
                 </Text>
                 <ChevronDown size={20} color="#adb5bd" style={{ transform: [{ rotate: showItemPicker ? '180deg' : '0deg' }] }} />
               </TouchableOpacity>
@@ -116,7 +116,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
                 <View style={styles.dropdownMenu}>
                   <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
                     {items.length === 0 ? (
-                      <Text style={styles.emptyText}>Brak dostępnych pozycji w zapasach</Text>
+                      <Text style={styles.emptyText}>Brak dostępnych pozycji w magazynie</Text>
                     ) : (
                       items.map((item) => (
                         <TouchableOpacity
@@ -142,7 +142,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
             {/* Quantity Input */}
             <View style={[styles.inputGroup, { zIndex: 1 }]}>
               <Text style={styles.label}>
-                Ilość zmarnowana * {selectedItem ? `(${selectedItem.unit})` : ''}
+                Utracona ilość * {selectedItem ? `(${selectedItem.unit})` : ''}
               </Text>
               <TextInput
                 value={quantity}
@@ -160,7 +160,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
 
             {/* Reason Selector */}
             <View style={[styles.inputGroup, { zIndex: 1000 }]}>
-              <Text style={styles.label}>Powód wyrzucenia *</Text>
+              <Text style={styles.label}>Powód straty *</Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowReasonPicker(!showReasonPicker);
