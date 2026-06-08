@@ -16,12 +16,12 @@ export class WasteLog {
   @JoinColumn({ name: 'restaurantId' })
   restaurant?: Restaurant;
 
-  @Column('uuid')
-  itemId: string = '';
+  @Column('uuid', { nullable: true })
+  itemId: string | null = null;
 
-  @ManyToOne(() => InventoryItem, { eager: true })
+  @ManyToOne(() => InventoryItem, { onDelete: 'SET NULL', nullable: true, eager: false })
   @JoinColumn({ name: 'itemId' })
-  item?: InventoryItem;
+  item?: InventoryItem | null;
 
   @Column('float')
   quantity: number = 0;

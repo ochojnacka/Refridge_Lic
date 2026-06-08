@@ -70,15 +70,19 @@ export class AnalyticsService {
     // Top wasted items
     const byItem = new Map<string, { itemName: string; quantity: number; value: number; reason: string }>();
     for (const log of logs) {
-      if (!byItem.has(log.itemId)) {
-        byItem.set(log.itemId, {
-          itemName: log.item?.name || 'Nieznany',
+      // TWORZYMY KLUCZ: Jeśli itemId to null (produkt usunięty), używamy klucza 'usuniety'
+      const itemIdKey = log.itemId || 'usuniety'; 
+
+      if (!byItem.has(itemIdKey)) {
+        byItem.set(itemIdKey, {
+          // Jeśli nie ma produktu, nazywamy go w raporcie "Produkt usunięty"
+          itemName: log.item?.name || 'Produkt usunięty', 
           quantity: 0,
           value: 0,
           reason: log.reason || 'Przeterminowany',
         });
       }
-      const record = byItem.get(log.itemId)!;
+      const record = byItem.get(itemIdKey)!;
       record.quantity += log.quantity;
       record.value += log.value;
     }

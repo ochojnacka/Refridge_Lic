@@ -59,7 +59,7 @@ async function seedDatabase() {
     const manager = userRepo.create({
       id: MANAGER_ID,
       restaurantId: RESTAURANT_ID,
-      email: 'menedżer@bistro.pl',
+      email: 'menedzer@bistro.pl',
       passwordHash: hashedPassword,
       name: 'Paweł Nowak',
       role: UserRole.MANAGER,
@@ -138,7 +138,7 @@ async function seedDatabase() {
     await recipeRepo.save(recipeEntities);
     console.log(`✅ Przepisy utworzone (${recipeEntities.length})`);
 
-    // 5. Create 6 months of Sales data
+    // 5. Create 6 months of Sales data (Z trendem wzrostowym)
     const salesData = [];
     const now = new Date();
 
@@ -148,18 +148,25 @@ async function seedDatabase() {
       for (let day = 0; day < daysInMonth; day++) {
         const date = new Date(now.getFullYear(), now.getMonth() - month, day + 1);
         const dayOfWeek = date.getDay();
+        const daysAgo = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Simulation: Different demand patterns
+        // NARRACJA BIZNESOWA: W ostatnim tygodniu i miesiącu ruch znacznie wzrósł!
+        let trendMultiplier = 1.0;
+        if (daysAgo <= 7) trendMultiplier = 1.6; // Ostatnie 7 dni: 60% więcej gości
+        else if (daysAgo <= 30) trendMultiplier = 1.3; // Ostatnie 30 dni: 30% więcej gości
+        else trendMultiplier = 0.8; // Starsze dane: mniejszy ruch
+
+        // Symulacja: Większy ruch w weekendy
         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        const baseCovers = isWeekend ? 95 : 70;
-        const coversVariation = Math.random() * 30 - 15;
-        const totalCovers = Math.max(20, baseCovers + coversVariation);
+        const baseCovers = isWeekend ? 100 : 65;
+        const coversVariation = Math.random() * 20 - 10;
+        const totalCovers = Math.max(10, Math.floor((baseCovers + coversVariation) * trendMultiplier));
 
-        // Each recipe sold with some probability
+        // Każdy przepis ma szansę na sprzedaż
         for (let i = 0; i < recipeEntities.length; i++) {
-          const probability = 0.6 + Math.random() * 0.3; // 60-90% chance
+          const probability = 0.5 + Math.random() * 0.4; 
           if (Math.random() < probability) {
-            const quantity = Math.floor(Math.random() * (totalCovers * 0.5) + 2);
+            const quantity = Math.floor(Math.random() * (totalCovers * 0.4) + 1);
             const recipe = recipeEntities[i];
             const revenue = quantity * recipe.salePrice;
 
@@ -181,32 +188,42 @@ async function seedDatabase() {
     }
 
     await saleRepo.save(salesData);
-    console.log(`✅ Dane sprzedażowe utworzone (${salesData.length} wpisów)`);
+    console.log(`✅ Dane sprzedażowe utworzone (${salesData.length} wpisów - z nałożonym trendem)`);
 
-    // 6. Create Waste logs (2-3 per week)
+    // 6. Create Waste logs (Codzienne logi z trendem malejącym!)
     const wasteData = [];
 
     for (let month = 0; month < 6; month++) {
       const daysInMonth = 30;
 
-      for (let day = 0; day < daysInMonth; day += 3) {
+      // Zamiast co 3 dni, generujemy logi CODZIENNIE
+      for (let day = 0; day < daysInMonth; day++) {
         const date = new Date(now.getFullYear(), now.getMonth() - month, day + 1);
+        const daysAgo = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Random waste incidents
-        const wasteCount = Math.random() > 0.5 ? 2 : 1;
+        // NARRACJA BIZNESOWA: Dzięki aplikacji Refridge odpady drastycznie spadły w ostatnim miesiącu!
+        let wasteMultiplier = 1.0;
+        if (daysAgo <= 7) wasteMultiplier = 0.3; // Tylko 30% historycznych strat w ostatnim tygodniu!
+        else if (daysAgo <= 30) wasteMultiplier = 0.5; // 50% mniejsze straty w ostatnim miesiącu
+        else wasteMultiplier = 1.5; // Kiedyś restauracja bardzo dużo marnowała
+
+        // Ilość logów w danym dniu
+        const maxLogs = Math.max(1, Math.floor(4 * wasteMultiplier));
+        const wasteCount = Math.floor(Math.random() * maxLogs) + 1;
 
         for (let w = 0; w < wasteCount; w++) {
           const item = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
-          const quantity = Math.random() * 5 + 0.5;
+          // Ilość wyrzucona też spada
+          const quantity = (Math.random() * 4 + 0.5) * wasteMultiplier; 
           const value = quantity * item.costPrice;
           const reasons = ['Przeterminowany', 'Uszkodzony', 'Nadprodukcja', 'Obróbka', 'Problemy jakościowe'];
 
           const waste = wasteRepo.create({
             restaurantId: RESTAURANT_ID,
             itemId: item.id,
-            quantity,
+            quantity: Math.round(quantity * 100) / 100,
             reason: reasons[Math.floor(Math.random() * reasons.length)],
-            value,
+            value: Math.round(value * 100) / 100,
             unit: item.unit,
             timestamp: date,
           });
@@ -216,11 +233,11 @@ async function seedDatabase() {
     }
 
     await wasteRepo.save(wasteData);
-    console.log(`✅ Rejestracja wyrzucanych produktów utworzona - (${wasteData.length} wpisów)`);
+    console.log(`✅ Rejestracja wyrzucanych produktów utworzona - (${wasteData.length} wpisów - udowodniona redukcja strat)`);
 
     console.log('\n✨ Seedowanie zakończone pomyślnie!');
     console.log('\n🔑 Dane logowania:');
-    console.log('   Menedżer: menedżer@bistro.pl / demo123');
+    console.log('   Menedżer: menedzer@bistro.pl / demo123');
     console.log('   Szef kuchni: szef@bistro.pl / demo123');
     console.log('   Administrator: admin@bistro.pl / demo123');    
     console.log('\n📊 ID Restauracji:', RESTAURANT_ID);

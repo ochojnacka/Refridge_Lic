@@ -55,7 +55,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
           {[
             { label: 'Nazwa restauracji', value: restaurantName, setter: setRestaurantName, placeholder: 'np. Bistro Na Rogu' },
             { label: 'Imię i nazwisko', value: name, setter: setName, placeholder: 'np. Jan Kowalski' },
-            { label: 'Email firmowy', value: email, setter: setEmail, placeholder: 'np. menedżer@restauracja.com', keyboard: 'email-address' as const },
+            { label: 'Email firmowy', value: email, setter: setEmail, placeholder: 'np. menedzer@restauracja.com', keyboard: 'email-address' as const },
           ].map((field, index) => (
             <View key={index} style={{ marginBottom: 20 }}>
               <Text style={{ fontSize: 12, fontWeight: '600', marginBottom: 8, color: '#495057', textTransform: 'uppercase', letterSpacing: 0.5 }}>

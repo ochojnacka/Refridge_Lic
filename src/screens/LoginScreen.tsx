@@ -56,7 +56,7 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
             <TextInput
               value={email}
               onChangeText={setEmail}
-              placeholder="np. menedżer@restaurant.com"
+              placeholder="np. menedzer@restaurant.com"
               placeholderTextColor="#adb5bd"
               style={{
                 borderWidth: 1.5,
@@ -136,7 +136,7 @@ export function LoginScreen({ navigation, onLoginSuccess }: LoginScreenProps) {
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>Rola: Menedżer</Text>
-            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>menedżer@bistro.pl / demo123</Text>
+            <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>menedzer@bistro.pl / demo123</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 13, color: '#40c057', fontWeight: '500' }}>Rola: Szef kuchni</Text>

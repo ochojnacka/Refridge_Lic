@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, RefreshControl, StyleSheet } from 'react-native';
-import { CheckCircle, AlertCircle, ChevronDown, Bell, Info } from 'lucide-react-native';
+import { CheckCircle, AlertCircle, ChevronDown, Info } from 'lucide-react-native';
 
 import { formatPrice, formatQty } from '../utils/formatting';
 import { WasteReason } from '../types/domain';
@@ -14,7 +14,7 @@ interface WasteLoggingScreenProps {
 const WASTE_REASONS: WasteReason[] = ['Przeterminowany', 'Uszkodzony', 'Nadprodukcja', 'Inne'];
 
 export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
-  // Pobieramy całą logikę z hooka
+  // Pobieramy całą zaktualizowaną logikę z hooka
   const {
     items,
     loading,
@@ -28,9 +28,8 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
     setQuantity,
     reason,
     setReason,
-    badgeText,
     calculateWasteValue,
-    handleLogWaste,
+    confirmLogWaste, // Pobieramy nową funkcję z oknem potwierdzenia
     fetchInventory
   } = useWasteLogging();
 
@@ -51,7 +50,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
   return (
     <View style={styles.container}>
       <AppHeader 
-        title="Zgłoszenie straty" 
+        title="Rejestr strat" 
         onBack={() => navigation.goBack()} 
         showNotifications={true} 
       />
@@ -63,19 +62,11 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
       >
         <View style={styles.content}>
 
-          {/* Real-time Notification Badge */}
-          {badgeText && (
-            <View style={styles.socketAlert}>
-              <Bell size={18} color="#0056b3" />
-              <Text style={styles.socketAlertText}>{badgeText}</Text>
-            </View>
-          )}
-
           {/* Success Message */}
           {success && (
             <View style={styles.successAlert}>
               <CheckCircle size={20} color="#2b8a3e" />
-              <Text style={styles.successAlertText}>Strata zarejestrowana.</Text>
+              <Text style={styles.successAlertText}>Strata została zarejestrowana.</Text>
             </View>
           )}
 
@@ -94,7 +85,7 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
           )}
 
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Zarejestruj stratę</Text>
+            <Text style={styles.formTitle}>Zgłoszenie nowej straty</Text>
             
             {/* Item Selector */}
             <View style={[styles.inputGroup, { zIndex: 2000 }]}>
@@ -204,14 +195,14 @@ export function WasteLoggingScreen({ navigation }: WasteLoggingScreenProps) {
 
             {/* Submit Button */}
             <TouchableOpacity
-              onPress={handleLogWaste}
+              onPress={confirmLogWaste} // Podłączono naszą nową funkcję z alertem
               disabled={submitting || !selectedItem || !quantity}
               style={[styles.submitButton, (!selectedItem || !quantity) && styles.submitButtonDisabled]}
             >
               {submitting ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.submitButtonText}>Zarejestruj odpady</Text>
+                <Text style={styles.submitButtonText}>Zgłoś stratę</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -255,8 +246,6 @@ const styles = StyleSheet.create({
   submitButtonText: { fontSize: 16, fontWeight: '700', color: '#ffffff' },
   infoBox: { flexDirection: 'row', backgroundColor: '#e9ecef', padding: 16, borderRadius: 8, gap: 12 },
   infoBoxText: { flex: 1, fontSize: 13, color: '#495057', lineHeight: 18 },
-  socketAlert: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e7f5ff', padding: 14, borderRadius: 8, marginBottom: 16, borderWidth: 1, borderColor: '#a5d8ff' },
-  socketAlertText: { marginLeft: 10, color: '#0056b3', fontWeight: '600', fontSize: 14 },
   successAlert: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ebfbee', padding: 14, borderRadius: 8, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#40c057' },
   successAlertText: { marginLeft: 10, color: '#2b8a3e', fontWeight: '600', fontSize: 14 },
   errorAlert: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff5f5', padding: 14, borderRadius: 8, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#fa5252' },

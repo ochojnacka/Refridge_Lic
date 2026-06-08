@@ -3,7 +3,7 @@ import { apiClient } from '../api/client';
 
 export function useLogin() {
   // Domyślne wartości ułatwiające logowanie dla recenzentów pracy
-  const [email, setEmail] = useState('menedżer@bistro.pl');
+  const [email, setEmail] = useState('menedzer@bistro.pl');
   const [password, setPassword] = useState('demo123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

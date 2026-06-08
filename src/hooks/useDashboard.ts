@@ -10,60 +10,40 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState<'today' | 'week'>('today');
-
-  const [todayLabel, setTodayLabel] = useState('');
-  const [weekLabel, setWeekLabel] = useState('');
+  
+  // NOWY STAN: Przechowywanie roli użytkownika do sterowania interfejsem
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   const cardsOpacity = useRef(new Animated.Value(0)).current;
   const cardsTranslateY = useRef(new Animated.Value(20)).current;
 
-  // Obliczanie etykiet dat (wykonywane tylko raz)
+  // Pobieranie roli użytkownika z tokena JWT przy starcie dashboardu
   useEffect(() => {
-    const now = new Date();
-    
-    const todayStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-    setTodayLabel(todayStr);
-    
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(diff);
-    startOfWeek.setHours(0, 0, 0, 0);
-    
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    
-    const startStr = startOfWeek.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-    const endStr = endOfWeek.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-    setWeekLabel(`${startStr} - ${endStr}`);
+    const token = (apiClient as any).token;
+    if (token) {
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          const decoded = JSON.parse(atob(base64));
+          setUserRole(decoded.role);
+        }
+      } catch (e) {
+        console.error('Błąd dekodowania tokena w Dashboardzie:', e);
+      }
+    }
   }, []);
 
   const getDateRangeForAPI = useCallback(() => {
     const now = new Date();
-    if (timeRange === 'today') {
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      return {
-        dateFrom: startOfDay.toISOString().split('T')[0],
-        dateTo: endOfDay.toISOString().split('T')[0],
-      };
-    } else {
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
-      
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 7);
-      
-      return {
-        dateFrom: startOfWeek.toISOString().split('T')[0],
-        dateTo: endOfWeek.toISOString().split('T')[0],
-      };
-    }
-  }, [timeRange]);
+    // Ze względu na uproszczenie dashboardu, zawsze pobieramy dane z dzisiaj
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    return {
+      dateFrom: startOfDay.toISOString().split('T')[0],
+      dateTo: endOfDay.toISOString().split('T')[0],
+    };
+  }, []);
 
   const animateCardsIn = useCallback(() => {
     cardsOpacity.setValue(0);
@@ -111,16 +91,13 @@ export function useDashboard() {
     }
   }, [getDateRangeForAPI, animateCardsIn]);
 
-  // Odświeżanie danych przy zmianie czasu
   useEffect(() => {
     loadAnalytics();
-  }, [timeRange, loadAnalytics]);
+  }, [loadAnalytics]);
 
-  // Real-time WebSocket: Automatyczne odświeżanie statystyk, gdy kuchnia wpisze stratę!
   useEffect(() => {
     const socket = io(API_BASE_URL);
     socket.on('waste:logged', () => {
-      // Pobieramy nowe dane analityczne "po cichu" (jako refresh, bez blokowania ekranu ładowaniem)
       loadAnalytics(true);
     });
 
@@ -136,10 +113,7 @@ export function useDashboard() {
     loading,
     refreshing,
     error,
-    timeRange,
-    setTimeRange,
-    todayLabel,
-    weekLabel,
+    userRole, // Zwracamy rolę do widoku
     cardsOpacity,
     cardsTranslateY,
     loadAnalytics

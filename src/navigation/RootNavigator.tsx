@@ -21,15 +21,19 @@ import { WasteLoggingScreen } from "../screens/WasteLoggingScreen";
 import { DetailedKPIScreen } from "../screens/DetailedKPIScreen";
 
 import { RootStackParamList } from "./types";
-import { COLORS } from "../theme";
 import { apiClient } from "../api/client";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
-function TabsNavigator() {
+function TabsNavigator({ route }: any) {
+  // Odbieramy rolę ze stosu nawigacji
+  const role = route.params?.role || 'Menedzer'; 
+
   return (
     <Tab.Navigator
+      // Szef kuchni nie ma dostępu do Dashboardu, więc zaczyna od razu od Magazynu
+      initialRouteName={role === 'Szef kuchni' ? 'Inventory' : 'Dashboard'}
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -54,14 +58,18 @@ function TabsNavigator() {
         },
       }}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: "Dashboard",
-          tabBarIcon: ({ color }) => <BarChart3 size={24} color={color} strokeWidth={2} />,
-        }}
-      />
+      {/* Karta widoczna TYLKO dla ról innych niż Szef kuchni */}
+      {role !== 'Szef kuchni' && (
+        <Tab.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+          options={{
+            tabBarLabel: "Dashboard",
+            tabBarIcon: ({ color }) => <BarChart3 size={24} color={color} strokeWidth={2} />,
+          }}
+        />
+      )}
+      
       <Tab.Screen
         name="Suggestions"
         component={MenuSuggestionsScreen}
@@ -93,16 +101,26 @@ function TabsNavigator() {
 export function RootNavigator() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        await apiClient.clearToken(); 
-
         await apiClient.loadToken();
-        const hasToken = (apiClient as any).token !== null;
-        console.log('[Auth Check] Token znaleziony:', hasToken);
-        setIsAuthenticated(hasToken);
+        const token = (apiClient as any).token;
+        
+        if (token) {
+          // Dekodowanie JWT w celu wyciągnięcia roli (bez pytania serwera)
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const decoded = JSON.parse(atob(base64));
+            setUserRole(decoded.role);
+          }
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
       } catch (error) {
         console.error('Błąd autoryzacji:', error);
         setIsAuthenticated(false);
@@ -114,7 +132,9 @@ export function RootNavigator() {
     checkAuthentication();
   }, []);
 
-  const handleLogin = () => {
+  // Odbieranie roli podczas pomyślnego logowania
+  const handleLogin = (role?: string) => {
+    if (role) setUserRole(role);
     setIsAuthenticated(true);
   };
 
@@ -140,11 +160,19 @@ export function RootNavigator() {
           <Stack.Screen name="Register" component={RegisterScreen} />
 
           {/* B2B App Screens */}
-          <Stack.Screen name="Tabs" component={TabsNavigator} />
+          <Stack.Screen 
+            name="Tabs" 
+            component={TabsNavigator} 
+            initialParams={{ role: userRole }} // Przekazanie roli w głąb nawigacji
+          />
           
           {/* Feature Screens */}
           <Stack.Screen name="WasteLogging" component={WasteLoggingScreen} />
-          <Stack.Screen name="DetailedKPI" component={DetailedKPIScreen} />
+          
+          {/* Twarde odcięcie ekranu KPI dla Szefa kuchni */}
+          {userRole !== 'Szef kuchni' && (
+            <Stack.Screen name="DetailedKPI" component={DetailedKPIScreen} />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

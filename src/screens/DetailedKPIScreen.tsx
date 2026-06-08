@@ -159,7 +159,6 @@ export function DetailedKPIScreen({ navigation }: any) {
   const renderInventoryTab = () => {
     if (!inventoryData) return null;
 
-    // Paleta kolorów dla wykresu kategorii
     const categoryColors = ['#e74c3c', '#f1c40f', '#2ecc71', '#95a5a6', '#9b59b6'];
 
     return (
@@ -170,27 +169,39 @@ export function DetailedKPIScreen({ navigation }: any) {
           <Text style={styles.cardSubText}>{inventoryData.totalItems || 0} unikalnych SKU w magazynie</Text>
         </View>
 
-        <View style={styles.dataCard}>
-          <Text style={styles.dataCardTitle}>Wskaźniki rotacji zapasów</Text>
-          
-          <View style={styles.parameterRow}>
-            <Text style={styles.parameterLabel}>Wskaźnik rotacji (Turnover)</Text>
-            <Text style={styles.parameterValue}>{inventoryData.turnoverRatio || 0}x / mies.</Text>
+        {/* 1. LISTA KRYTYCZNYCH PRODUKTÓW */}
+        {inventoryData.criticalLevels && inventoryData.criticalLevels.length > 0 ? (
+          <View style={styles.criticalListContainer}>
+            <Text style={styles.sectionHeader}>⚠️ Produkty wymagające zamówienia</Text>
+            {inventoryData.criticalLevels.map((item: any, index: number) => (
+              <View key={index} style={styles.criticalRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.itemName}>{item.itemName}</Text>
+                  <Text style={styles.itemStock}>
+                    Aktualny stan: {item.quantity} {item.unit}
+                  </Text>
+                </View>
+                <View style={[styles.statusBadge, item.status === 'CRITICAL' && { backgroundColor: '#fff5f5', borderColor: '#ffc9c9' }]}>
+                  <Text style={[styles.statusText, item.status === 'CRITICAL' && { color: '#c92a2a' }]}>
+                    {item.status === 'CRITICAL' ? 'Krytyczny' : 'Niski'}
+                  </Text>
+                </View>
+              </View>
+            ))}
           </View>
-          
-          <View style={[styles.parameterRow, { borderBottomWidth: 0, paddingBottom: 0 }]}>
-            <Text style={styles.parameterLabel}>Szacunkowy czas wyczerpania</Text>
-            <Text style={[styles.parameterValue, { color: '#f39c12' }]}>{inventoryData.estimatedDepletionDays || 0} dni</Text>
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>Wszystkie stany magazynowe w normie.</Text>
           </View>
-        </View>
+        )}
 
-        {/* Dynamiczny wykres struktury kapitału */}
+        {/* 2. WYKRES STRUKTURY KAPITAŁU */}
         {inventoryData.categoryBreakdown && inventoryData.categoryBreakdown.length > 0 && (
           <View style={[styles.dataCard, { marginTop: 20 }]}>
             <Text style={styles.dataCardTitle}>Struktura kapitału wg kategorii</Text>
             <View style={styles.barChartContainer}>
               {inventoryData.categoryBreakdown.map((item: any, idx: number) => (
-                <React.Fragment key={idx}>
+                <View key={idx} style={{ marginBottom: 12 }}>
                   <View style={styles.barChartLabelRow}>
                     <Text style={styles.barLabel}>{item.category}</Text>
                     <Text style={styles.barValue}>{item.percentage}%</Text>
@@ -198,21 +209,9 @@ export function DetailedKPIScreen({ navigation }: any) {
                   <View style={styles.barTrack}>
                     <View style={[styles.barFill, { width: `${item.percentage}%`, backgroundColor: categoryColors[idx % categoryColors.length] }]} />
                   </View>
-                </React.Fragment>
+                </View>
               ))}
             </View>
-          </View>
-        )}
-
-        {inventoryData.criticalLevels && inventoryData.criticalLevels.length > 0 && (
-          <View style={[styles.alertCard, { marginTop: 20 }]}>
-            <View style={styles.alertHeader}>
-              <AlertTriangle size={20} color="#e74c3c" />
-              <Text style={styles.alertTitle}>Krytyczne poziomy zapasów</Text>
-            </View>
-            <Text style={styles.alertText}>
-              Istnieje {inventoryData.criticalLevels.length} pozycji poniżej optymalnych stanów magazynowych. Złóż zamówienie u dostawców, aby zapobiec brakom (tzw. stockoutom).
-            </Text>
           </View>
         )}
       </View>
@@ -345,4 +344,13 @@ const styles = StyleSheet.create({
   alertHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   alertTitle: { fontSize: 15, fontWeight: '700', color: '#c92a2a' },
   alertText: { fontSize: 14, color: '#e03131', lineHeight: 20 },
+  criticalListContainer: { backgroundColor: '#fff', borderRadius: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  sectionHeader: { fontSize: 16, fontWeight: '700', marginBottom: 16, color: '#212529' },
+  criticalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f1f3f5' },
+  itemName: { fontSize: 15, fontWeight: '600', color: '#212529' },
+  itemStock: { fontSize: 13, color: '#868e96', marginTop: 4 },
+  statusBadge: { backgroundColor: '#fff9db', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: '#ffec99' },
+  statusText: { fontSize: 12, color: '#f59f00', fontWeight: '700' },
+  emptyState: { alignItems: 'center', padding: 20 },
+  emptyText: { color: '#868e96', fontStyle: 'italic' },
 });

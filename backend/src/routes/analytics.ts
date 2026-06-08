@@ -7,18 +7,17 @@ const router = Router();
 const analyticsService = new AnalyticsService();
 const menuService = new MenuSuggestionService();
 
-// Zmiana typu parametru na 'any', aby pominąć błędy niezgodności typów z biblioteki 'qs' w Expressie
 const parseRange = (range: any): number => {
   if (range === '7days') return 7;
-  if (range === 'all') return 365; // Przybliżenie dla studium przypadku
-  return 30; // Domyślnie 30 dni
+  if (range === 'all') return 365;
+  return 30;
 };
 
-router.get('/waste-report', authenticateToken, async (req: AuthRequest, res: Response) => {
+// Dostęp dla wszystkich załogantów (Raport odpadów jest potrzebny kuchni do optymalizacji)
+router.get('/waste-report', authenticateToken, authorizeRole(['Menedzer', 'Szef kuchni', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const rangeDays = parseRange(req.query.range);
-    const report = await analyticsService.getWasteReport(req.user.restaurantId, rangeDays);
+    const report = await analyticsService.getWasteReport(req.user!.restaurantId, rangeDays);
     res.json(report);
   } catch (error) {
     console.error('Błąd pobierania raportu odpadów:', error);
@@ -26,11 +25,11 @@ router.get('/waste-report', authenticateToken, async (req: AuthRequest, res: Res
   }
 });
 
-router.get('/profitability', authenticateToken, async (req: AuthRequest, res: Response) => {
+// ZABLOKOWANE DLA SZEFA KUCHNI: Finanse i rentowność
+router.get('/profitability', authenticateToken, authorizeRole(['Menedzer', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const rangeDays = parseRange(req.query.range);
-    const report = await analyticsService.getProfitabilityReport(req.user.restaurantId, rangeDays);
+    const report = await analyticsService.getProfitabilityReport(req.user!.restaurantId, rangeDays);
     res.json(report);
   } catch (error) {
     console.error('Błąd pobierania raportu rentowności:', error);
@@ -38,10 +37,10 @@ router.get('/profitability', authenticateToken, async (req: AuthRequest, res: Re
   }
 });
 
-router.get('/inventory-health', authenticateToken, async (req: AuthRequest, res: Response) => {
+// Dostęp dla wszystkich (Kuchnia musi widzieć, co jest w magazynie)
+router.get('/inventory-health', authenticateToken, authorizeRole(['Menedzer', 'Szef kuchni', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
-    const report = await analyticsService.getInventoryHealth(req.user.restaurantId);
+    const report = await analyticsService.getInventoryHealth(req.user!.restaurantId);
     res.json(report);
   } catch (error) {
     console.error('Błąd pobierania statusu zapasów:', error);
@@ -49,10 +48,10 @@ router.get('/inventory-health', authenticateToken, async (req: AuthRequest, res:
   }
 });
 
-router.get('/investment-appraisal', authenticateToken, async (req: AuthRequest, res: Response) => {
+// ZABLOKOWANE DLA SZEFA KUCHNI: Wskaźniki WACC, ROI, itp.
+router.get('/investment-appraisal', authenticateToken, authorizeRole(['Menedzer', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
-    const appraisal = await analyticsService.getInvestmentAppraisal(req.user.restaurantId);
+    const appraisal = await analyticsService.getInvestmentAppraisal(req.user!.restaurantId);
     res.json(appraisal);
   } catch (error) {
     console.error('Błąd pobierania oszacowania inwestycji:', error);
@@ -60,12 +59,11 @@ router.get('/investment-appraisal', authenticateToken, async (req: AuthRequest, 
   }
 });
 
-// GET /analytics/suggestions - Menu suggestions for today
-router.get('/suggestions', authenticateToken, async (req: AuthRequest, res: Response) => {
+// Dostęp dla wszystkich (Sugestie menu na bazie zapasów)
+router.get('/suggestions', authenticateToken, authorizeRole(['Menedzer', 'Szef kuchni', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
-    const suggestions = await menuService.suggestMenuForToday(req.user.restaurantId, limit);
+    const suggestions = await menuService.suggestMenuForToday(req.user!.restaurantId, limit);
     
     await Promise.all(suggestions.map(s => menuService.saveSuggestion(req.user!.restaurantId, s)));
     

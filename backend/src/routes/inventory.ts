@@ -7,7 +7,7 @@ const router = Router();
 const inventoryRepository = AppDataSource.getRepository(InventoryItem);
 
 // GET /inventory/items - List all items for restaurant
-router.get('/items', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/items', authenticateToken, authorizeRole(['Menedzer', 'Szef kuchni', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
@@ -26,7 +26,7 @@ router.get('/items', authenticateToken, async (req: AuthRequest, res: Response) 
 });
 
 // POST /inventory/items - Add new item
-router.post('/items', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/items', authenticateToken, authorizeRole(['Menedzer', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
@@ -59,7 +59,7 @@ router.post('/items', authenticateToken, async (req: AuthRequest, res: Response)
 });
 
 // PATCH /inventory/items/:id - Update item
-router.patch('/items/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.patch('/items/:id', authenticateToken, authorizeRole(['Menedzer', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Nieautoryzowany dostęp' });
@@ -91,7 +91,7 @@ router.patch('/items/:id', authenticateToken, async (req: AuthRequest, res: Resp
 });
 
 // DELETE /inventory/items/:id - Delete item
-router.delete('/items/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.delete('/items/:id', authenticateToken, authorizeRole(['Menedzer', 'Administrator']), async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Nieautoryzowany dostęp' });

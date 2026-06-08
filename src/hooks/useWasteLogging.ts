@@ -19,8 +19,6 @@ export function useWasteLogging() {
 
   // WebSocket state
   const socketRef = useRef<Socket | null>(null);
-  const [lastWasteTime, setLastWasteTime] = useState<number | null>(null);
-  const [badgeText, setBadgeText] = useState<string | null>(null);
 
   const fetchInventory = useCallback(async (showRefresh = false) => {
     try {
@@ -33,7 +31,8 @@ export function useWasteLogging() {
       if (response.error) {
         setError(response.error);
       } else if (response.data) {
-        setItems(response.data);
+        // Sprawdzamy czy to na pewno tablica, jeśli nie - wstawiamy pustą
+        setItems(Array.isArray(response.data) ? response.data : []);
       }
     } catch (err) {
       console.error('Błąd ładowania zapasów:', err);
@@ -52,8 +51,9 @@ export function useWasteLogging() {
     socketRef.current = io(API_BASE_URL); 
 
     socketRef.current.on('waste:logged', () => {
-      setLastWasteTime(Date.now());
-      fetchInventory(); // Odśwież listę w tle
+      // Zamiast irytującego odliczania, po prostu cicho odświeżamy dane w tle.
+      // Dzięki temu, gdy inny pracownik zgłosi stratę, u nas stan magazynu zaktualizuje się automatycznie.
+      fetchInventory(); 
     });
 
     return () => {
@@ -63,37 +63,13 @@ export function useWasteLogging() {
     };
   }, [fetchInventory]);
 
-  // Timer dla powiadomień w czasie rzeczywistym
-  useEffect(() => {
-    if (!lastWasteTime) {
-      setBadgeText(null);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      const secondsAgo = Math.floor((Date.now() - lastWasteTime) / 1000);
-      if (secondsAgo <= 10) {
-        setBadgeText(`Nowe marnotrawstwo! (${secondsAgo}s temu)`);
-      } else {
-        setBadgeText(null);
-        setLastWasteTime(null);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [lastWasteTime]);
-
   const calculateWasteValue = useCallback((): number => {
     if (!selectedItem || !quantity) return 0;
     return parseFloat(quantity) * selectedItem.costPrice;
   }, [selectedItem, quantity]);
 
+  // Główna funkcja wysyłająca dane do API
   const handleLogWaste = async () => {
-    if (!selectedItem || !quantity) {
-      Alert.alert('Błąd walidacji', 'Proszę wybrać element i wprowadzić ilość.');
-      return;
-    }
-
     try {
       setSubmitting(true);
       setError(null);
@@ -108,7 +84,7 @@ export function useWasteLogging() {
         // Reset formularza
         setSelectedItem(null);
         setQuantity('');
-        setReason('Expired');
+        setReason('Przeterminowany'); // Poprawiono z 'Expired' na polskie tłumaczenie
         
         setTimeout(() => setSuccess(false), 2500);
         fetchInventory();
@@ -119,6 +95,31 @@ export function useWasteLogging() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // NOWA FUNKCJA: Wywołuje okno potwierdzenia przed wykonaniem handleLogWaste
+  const confirmLogWaste = () => {
+    if (!selectedItem || !quantity) {
+      Alert.alert('Błąd walidacji', 'Proszę wybrać produkt i wprowadzić ilość.');
+      return;
+    }
+
+    Alert.alert(
+      'Potwierdzenie rejestracji',
+      `Czy na pewno chcesz zgłosić stratę?\n\nProdukt: ${selectedItem.name}\nIlość: ${quantity} ${selectedItem.unit}\nPowód: ${reason}`,
+      [
+        {
+          text: 'Anuluj',
+          style: 'cancel',
+        },
+        {
+          text: 'Zgłoś stratę',
+          style: 'destructive',
+          onPress: handleLogWaste,
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return {
@@ -134,9 +135,8 @@ export function useWasteLogging() {
     setQuantity,
     reason,
     setReason,
-    badgeText,
     calculateWasteValue,
-    handleLogWaste,
+    confirmLogWaste, // Zwracamy nową funkcję zamiast handleLogWaste
     fetchInventory
   };
 }

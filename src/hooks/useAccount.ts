@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { apiClient } from '../api/client';
 
 export function useAccount() {
   const [userInfo, setUserInfo] = useState<any>(null);
+  const [restaurantInfo, setRestaurantInfo] = useState<any>(null); // NOWY STAN
+  const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadUserInfo = useCallback(async () => {
+  const loadUserInfoAndEmployees = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -17,27 +19,87 @@ export function useAccount() {
         return;
       }
 
-      // Decode JWT to get user info (payload is the 2nd part)
       const parts = token.split('.');
       if (parts.length === 3) {
-        // Dekodowanie Base64Url (standard dla JWT) do zwykłego Base64
         const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
         const decoded = JSON.parse(atob(base64));
         setUserInfo(decoded);
+
+        // Pobieramy równolegle pracowników (dla Menedżera) oraz dane restauracji (dla każdego)
+        const promises: Promise<any>[] = [apiClient.getRestaurant()];
+        if (decoded.role === 'Menedzer' || decoded.role === 'Administrator') {
+          promises.push(apiClient.getEmployees());
+        }
+
+        const [restResponse, empResponse] = await Promise.all(promises);
+
+        if (restResponse?.data) {
+          setRestaurantInfo(restResponse.data);
+        }
+        if (empResponse?.data) {
+          setEmployees(empResponse.data as any[]);
+        }
       } else {
         throw new Error('Nieprawidłowy token JWT');
       }
     } catch (err) {
-      console.error('Błąd ładowania informacji o użytkowniku:', err);
-      setError('Nie udało się załadować profilu użytkownika. Proszę spróbować ponownie.');
+      console.error('Błąd ładowania danych konta:', err);
+      setError('Nie udało się załadować profilu. Proszę spróbować ponownie.');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadUserInfo();
-  }, [loadUserInfo]);
+    loadUserInfoAndEmployees();
+  }, [loadUserInfoAndEmployees]);
+
+  const addEmployee = async (email: string, password: string, name: string, role: string) => {
+    setError(null);
+    const response = await apiClient.createEmployee(email, password, name, role);
+    if (response.error) {
+      setError(response.error);
+      return false;
+    }
+    await loadUserInfoAndEmployees();
+    return true;
+  };
+
+  const updateProfile = async (name: string, email: string) => {
+    setError(null);
+    const response = await apiClient.updateProfile(name, email);
+    if (response.error) {
+      setError(response.error);
+      return false;
+    }
+    if (response.data?.token) {
+      await apiClient.setToken(response.data.token);
+      await loadUserInfoAndEmployees();
+    }
+    return true;
+  };
+
+  const updateRestaurant = async (name: string, city: string, seats: number, avgCoversPerDay: number, description: string) => {
+    setError(null);
+    const response = await apiClient.updateRestaurant({ name, city, seats, avgCoversPerDay, description });
+    if (response.error) {
+      setError(response.error);
+      return false;
+    }
+    await loadUserInfoAndEmployees();
+    return true;
+  };
+
+  const deleteEmployee = async (id: string) => {
+    setError(null);
+    const response = await apiClient.deleteEmployee(id);
+    if (response.error) {
+      setError(response.error);
+      return false;
+    }
+    await loadUserInfoAndEmployees();
+    return true;
+  };
 
   const logout = async () => {
     try {
@@ -50,9 +112,15 @@ export function useAccount() {
 
   return {
     userInfo,
+    restaurantInfo, // Zwracamy zaktualizowany obiekt restauracji
+    employees,
     loading,
     error,
     logout,
-    retry: loadUserInfo
+    addEmployee,
+    updateProfile,
+    updateRestaurant,
+    deleteEmployee,
+    retry: loadUserInfoAndEmployees
   };
 }

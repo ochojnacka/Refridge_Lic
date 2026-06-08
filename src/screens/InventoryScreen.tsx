@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal, TextInput, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal, TextInput, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Trash2, ChevronDown } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -36,6 +36,30 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
     }, [fetchInventory])
   );
 
+  // Funkcja wyświetlająca okno alertowe z potwierdzeniem
+  const confirmDelete = (item: any) => {
+    Alert.alert(
+      'Potwierdzenie usunięcia',
+      `Czy na pewno chcesz usunąć ten produkt?\n${item.name} - ${formatQty(item.quantity)} ${item.unit}`,
+      [
+        {
+          text: 'Nie',
+          style: 'cancel',
+        },
+        {
+          text: 'Tak',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteItem(item.id);
+            // Wyświetlenie krótkiego komunikatu po pomyślnym usunięciu
+            Alert.alert('Usunięto', `Produkt ${item.name} został usunięty z magazynu.`);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+  
   const handleAddItem = async () => {
     if (!newItem.name || !newItem.quantity || !newItem.costPrice) {
       setError('Wypełnij wszystkie wymagane pola (nazwa, ilość, cena)');
@@ -160,7 +184,7 @@ export function InventoryScreen({ navigation }: InventoryScreenProps) {
                         </View>
                       </View>
                       <TouchableOpacity
-                        onPress={() => deleteItem(item.id)}
+                        onPress={() => confirmDelete(item)}
                         style={{ padding: 8 }}
                       >
                         <Trash2 size={18} color="#e74c3c" />

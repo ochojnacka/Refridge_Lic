@@ -97,6 +97,17 @@ class ApiClient {
     });
   }
 
+  async getEmployees() {
+    return this.request('/auth/employees', { method: 'GET' });
+  }
+
+  async createEmployee(email: string, password: string, name: string, role: string) {
+    return this.request('/auth/employees', {
+      method: 'POST',
+      body: { email, password, name, role },
+    });
+  }
+
   // Inventory endpoints
   async getInventoryItems() {
     return this.request('/inventory/items', { method: 'GET' });
@@ -106,7 +117,7 @@ class ApiClient {
     return this.request('/inventory/items', {
       method: 'POST',
       body: { name, quantity, unit, costPrice, category },
-    });2
+    });
   }
 
   async updateInventoryItem(id: string, updates: any) {
@@ -209,7 +220,30 @@ class ApiClient {
     if (dateFrom) params.append('dateFrom', dateFrom);
     if (dateTo) params.append('dateTo', dateTo);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<WasteLog[]>('/waste/logs${query}', { method: 'GET' });
+    return this.request<WasteLog[]>(`/waste/logs${query}`, { method: 'GET' });
+  }
+
+  // Profile endpoints
+  async updateProfile(name: string, email: string) {
+    return this.request<{ token: string; user: any }>('/auth/profile', {
+      method: 'PATCH',
+      body: { name, email },
+    });
+  }
+
+  async updateRestaurant(updates: { name: string; city: string; seats: number; avgCoversPerDay: number; description: string }) {
+    return this.request('/auth/restaurant', {
+      method: 'PATCH',
+      body: updates,
+    });
+  }
+
+  async deleteEmployee(id: string) {
+    return this.request(`/auth/employees/${id}`, { method: 'DELETE' });
+  }
+
+  async getRestaurant() {
+    return this.request('/auth/restaurant', { method: 'GET' });
   }
 }
 
